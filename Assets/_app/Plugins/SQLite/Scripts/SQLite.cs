@@ -47,6 +47,7 @@ using Sqlite3Statement = System.IntPtr;
 
 namespace SQLite4Unity3d
 {
+	
 	public class SQLiteException : Exception
 	{
 		public SQLite3.Result Result { get; private set; }
@@ -3075,6 +3076,7 @@ namespace SQLite4Unity3d
 			if (r != Result.OK) {
 				throw SQLiteException.New (r, GetErrmsg (db));
 			}
+
 			return stmt;
 		}
 

@@ -20,16 +20,18 @@ public class notes : MonoBehaviour
     void Start()
     {
         contactService= new ContactService();
-        // CreateNotesDB();
-        //AddNoteToDB();
-       // OnGetNotesByProject();
+#if !UNITY_EDITOR
+        CreateNotesDB();
+#endif
+      
+        // OnGetNotesByProject();
     }
 
     // Update is called once per frame
     void Update()
     {
        // transform.position= headCamera.transform.position+ new Vector3(headCamera.transform.forward.x, 0, headCamera.transform.forward.z).normalized/2;
-        transform.LookAt(new Vector3(-headCamera.transform.position.x,transform.position.y, transform.position.x));
+       // transform.LookAt(headCamera.transform.position);
     }
 
     private void ToConsole(IEnumerable<Notes> notes)
@@ -38,7 +40,7 @@ public class notes : MonoBehaviour
         {
             var nN= Instantiate(savedNotePrefab,savedContext.transform);
             Debug.Log("1");
-            nN.transform.GetComponentInChildren<TMP_Text>().text = note.ToString();
+            nN.transform.GetComponentInChildren<TMP_Text>().text = note.NameToString();
             ToConsole(note.ToString());
         }
     }
@@ -62,6 +64,7 @@ public class notes : MonoBehaviour
     }
     public void AddNoteToDB()
     {
+
         Notes note = new Notes
         {
             Name = "Projectname" + System.DateTime.Now.ToString(),

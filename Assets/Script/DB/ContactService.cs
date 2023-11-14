@@ -19,6 +19,7 @@ public class ContactService
 
     public int AddNote(Notes note)
     {
+
         return dB.GetConnection().Insert(note);
     }
 

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections;
 using System.IO;
 #endif
+using System.IO;
 using System.Collections.Generic;
 
 public class DB
@@ -64,6 +65,7 @@ public class DB
 #endif
         _connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
         Debug.Log("Final PATH: " + dbPath);
+        
 
     }
 

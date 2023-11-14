@@ -16,4 +16,9 @@ public class Notes
     {
         return string.Format("[Note: Id={0}, Name={1},  Text={2}, Object={3}, Building={4}, Level={5}, Room={6}]", Id, Name, Text, Object, Building, Level, Room);
     }
+
+    public string NameToString()
+    {
+        return Name;
+    }
 }
