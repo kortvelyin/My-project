@@ -33,4 +33,10 @@ public class ContactService
         return dB.GetConnection().Table<Notes>().Where(x => x.Building == name);
     }
 
+    public int UpdateNote(Notes note)
+    {
+
+        return dB.GetConnection().Update(note);
+    }
+
 }

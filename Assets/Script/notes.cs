@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,7 +41,7 @@ public class notes : MonoBehaviour
         {
             var nN= Instantiate(savedNotePrefab,savedContext.transform);
             Debug.Log("1");
-            nN.transform.GetComponentInChildren<TMP_Text>().text = note.NameToString();
+            nN.transform.GetComponentInChildren<TMP_Text>().text = note.ToString();
             ToConsole(note.ToString());
         }
     }
@@ -67,8 +68,10 @@ public class notes : MonoBehaviour
 
         Notes note = new Notes
         {
-            Name = "Projectname" + System.DateTime.Now.ToString(),
+            Creator= "Name",
+            Title = "Projectname" + System.DateTime.Now.ToString(),
             Text = textNote.text,
+            Time= System.DateTime.Now,
             Object = "none",
             Building = "none",
             Level = "none",
@@ -77,7 +80,7 @@ public class notes : MonoBehaviour
        
        int pk= contactService.AddNote(note);
        
-       Debug.Log("Primary Key: "+pk);
+       //Debug.Log("Primary Key: "+pk);
     }
 
     //Create the note list in the handy thingy
@@ -112,5 +115,26 @@ public class notes : MonoBehaviour
         }
     }
 
+
+
+    public void UpdateNote(Notes oldNote)
+    {
+
+        Notes note = new Notes
+        {
+            Id= oldNote.Id,
+            Creator=oldNote.Creator,
+            Title = "Projectname" + System.DateTime.Now.ToString(),
+            Text = textNote.text,
+            Object = oldNote.Object,
+            Building = oldNote.Building,
+            Level = oldNote.Level,
+            Room = oldNote.Room
+        };
+
+        int pk = contactService.UpdateNote(note);
+
+        //Debug.Log("Primary Key: "+pk);
+    }
 
 }
