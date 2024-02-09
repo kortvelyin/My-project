@@ -9,11 +9,30 @@ using UnityEngine.UI;
 public class authManager : MonoBehaviour
 {
     //[HideInInspector] public Text logTxt;
-    
-    async void Start()
+
+    void SetupEvents()
     {
-        await UnityServices.InitializeAsync();
-        //SignIn();
+        AuthenticationService.Instance.SignedIn += () =>
+        {
+            Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}");
+            Debug.Log($"Access Token: {AuthenticationService.Instance.AccessToken}");
+        };
+
+        AuthenticationService.Instance.SignInFailed += (err) => {
+            Debug.LogError(err);
+        };
+
+
+        AuthenticationService.Instance.SignedOut += () => {
+            Debug.Log("Player signed out.");
+        };
+
+
+        AuthenticationService.Instance.Expired += () =>
+        {
+            Debug.Log("Player session could not be refreshed and expired.");
+        };
+
     }
 
 
@@ -39,7 +58,6 @@ public class authManager : MonoBehaviour
         }
 
     }
+}
 
     
-    
-}
