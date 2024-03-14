@@ -8,7 +8,12 @@ using UnityEngine.UI;
 
 public class authManager : MonoBehaviour
 {
-    //[HideInInspector] public Text logTxt;
+    [HideInInspector] public Text logTxt;
+
+    async void Start()
+    {
+        await UnityServices.InitializeAsync();
+    }
 
     void SetupEvents()
     {
@@ -49,7 +54,7 @@ public class authManager : MonoBehaviour
 
             print("Sign in Success");
             print("Player Id:" + AuthenticationService.Instance.PlayerId);
-            // logTxt.text = "Player id:" + AuthenticationService.Instance.PlayerId;
+           // logTxt.text = "Player id:" + AuthenticationService.Instance.PlayerId;
         }
         catch (AuthenticationException ex)
         {

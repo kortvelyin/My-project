@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class ContactService 
 {
@@ -19,8 +20,22 @@ public class ContactService
 
     public int AddNote(Notes note)
     {
-
         return dB.GetConnection().Insert(note);
+    }
+
+
+    public IEnumerator PostData_Coroutine(Notes note)
+    {
+        string uri = "http://localhost:3000/note";
+        
+       using(UnityWebRequest request=UnityWebRequest.PostWwwForm(uri, JsonUtility.ToJson(note)))
+        {
+            yield return request.SendWebRequest();
+            if (request.isNetworkError || request.isHttpError)
+                Debug.Log(request.error);
+            else
+                Debug.Log(request.downloadHandler.text);
+        }
     }
 
     public IEnumerable<Notes> GetNotes()

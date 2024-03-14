@@ -4,6 +4,10 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Services.Authentication;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
+using System;
 
 public class notes : MonoBehaviour
 {
@@ -68,28 +72,52 @@ public class notes : MonoBehaviour
 
         Notes note = new Notes
         {
-            Creator= "Name",
+            Creator= AuthenticationService.Instance.PlayerId,
             Title = "Projectname" + System.DateTime.Now.ToString(),
             Text = textNote.text,
-            Time= System.DateTime.Now,
             Object = "none",
             Building = "none",
-            Level = "none",
-            Room = "none"
+            Position = "none"
         };
-       
-       int pk= contactService.AddNote(note);
-       
-       //Debug.Log("Primary Key: "+pk);
+
+        StartCoroutine(contactService.PostData_Coroutine(note));
+        // int pk= contactService.AddNote(note);
+
+        //Debug.Log("Primary Key: "+pk);
     }
 
     //Create the note list in the handy thingy
     public void OnGetNotesbyname()
     {
-        var notes = contactService.GetNotes();
-        ToConsole(notes);
+        StartCoroutine(GetRequest("http://localhost:3000/note"));
+        //var notes = contactService.GetNotes();
+        //ToConsole(notes);
     }
 
+   IEnumerator GetRequest(string uri)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        {
+            yield return webRequest.SendWebRequest();
+
+            switch(webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(string.Format("Something went wrong: {0}", webRequest.error));
+                    break;
+                case UnityWebRequest.Result.Success:
+                   // Notes note =JsonConvert.DeserializeObject<Notes>(webRequest.downloadHandler.text);
+                    Notes[] notes = JsonConvert.DeserializeObject<Notes[]>(webRequest.downloadHandler.text);
+
+                    ToConsole(notes);
+
+
+                 break;
+
+            }
+        }
+    }
     public void OnGetNotesByProject()
     {
         var notes = contactService.GetNotesFromProject("none");
@@ -105,7 +133,7 @@ public class notes : MonoBehaviour
             
             for (var i = savedContext.transform.childCount - 1; i >= 0; i--)
             {
-                Object.Destroy(savedContext.transform.GetChild(i).gameObject);
+                UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
             }
         }
         else
@@ -128,8 +156,7 @@ public class notes : MonoBehaviour
             Text = textNote.text,
             Object = oldNote.Object,
             Building = oldNote.Building,
-            Level = oldNote.Level,
-            Room = oldNote.Room
+            Position = oldNote.Position
         };
 
         int pk = contactService.UpdateNote(note);
