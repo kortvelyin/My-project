@@ -1,25 +1,35 @@
+using Newtonsoft.Json;
 using SQLite4Unity3d;
 using System;
 
+[Serializable]
 public class Notes
 {
 
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-    public string Creator { get; set; }
-    public string Title { get; set; }
-    public string Text { get; set; }
-    public string Object { get; set; }
-    public string Building { get; set; }
-    public string Position { get; set; }
+    //[PrimaryKey, AutoIncrement]
+
+
+     int ID=0; //{ get; set; }
+
+    public string user_id; //{ get; set; }
+    
+    public string title;// { get; set; }
+    
+    public string text; //{ get; set; }
+    
+    public string gobject;// { get; set; }
+    
+    public string project_id;// { get; set; }
+    
+    public string position; //{ get; set; }
     
     public override string ToString()
     {
-        return string.Format("{Id:{0}, Creator:{1}, Title:{2},  Object:{3}, Building:{4}, Position:{5}", Id, Creator, Title, Text, Object, Building,Position);
+        return string.Format(" user_id:{0}, title:{1}, text:{2}, gobject:{3}, project_id:{4}, position:{5}", user_id, title, text, gobject, project_id, position);
     }
 
     public string TitleToString()
     {
-        return Title;
+        return title;
     }
 }

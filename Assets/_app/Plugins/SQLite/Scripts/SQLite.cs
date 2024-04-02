@@ -1428,8 +1428,8 @@ namespace SQLite4Unity3d
 			}
 			
 			var cols = from p in map.Columns
-				where p != pk
-				select p;
+                       where p != pk
+                       select p;
 			var vals = from c in cols
 				select c.GetValue (obj);
 			var ps = new List<object> (vals);

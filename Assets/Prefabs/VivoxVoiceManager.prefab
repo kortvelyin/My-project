@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1546648525461435652}
   - component: {fileID: 5964092465381079982}
+  - component: {fileID: 5576689933414321615}
   m_Layer: 0
   m_Name: VivoxVoiceManager
   m_TagString: Untagged
@@ -44,7 +45,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ccec6cc900e83f41aade135fe997e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _key: 5xesytQc3E85ngv83tU42ecFFaQPTTQZ
-  _issuer: 79717-aaaa-88527-udash
-  _domain: mtu1xp.vivox.com
-  _server: https://mtu1xp-mad.vivox.com
+  _key: WEPYPlxK1hrPcavZxSTjW5XW598qvtkj
+  _issuer: ' 79717-my_pr-15082-udash'
+  _domain: ' mtu1xp.vivox.com'
+  _server: ' https://unity.vivox.com/appconfig/79717-my_pr-15082-udash'
+--- !u!114 &5576689933414321615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1526405101437931601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f8be37f22c72544cbf66bb804bbef8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  VoiceChannelName: Meeting

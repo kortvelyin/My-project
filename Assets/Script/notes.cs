@@ -8,7 +8,15 @@ using Unity.Services.Authentication;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System;
+using UnityEditor.Experimental.GraphView;
+using System.Linq;
 
+[System.Serializable]
+public class NoteListObject
+{
+
+    public List<Notes> data;
+}
 public class notes : MonoBehaviour
 {
     public GameObject headCamera;
@@ -28,8 +36,12 @@ public class notes : MonoBehaviour
 #if !UNITY_EDITOR
         CreateNotesDB();
 #endif
-      
+
         // OnGetNotesByProject();
+
+
+        AddNoteToDB();
+        OnGetNotesbyname();
     }
 
     // Update is called once per frame
@@ -39,14 +51,15 @@ public class notes : MonoBehaviour
        // transform.LookAt(headCamera.transform.position);
     }
 
-    private void ToConsole(IEnumerable<Notes> notes)
+    private void ToConsole(Notes[] notes)
     {
-        foreach (var note in notes)
+        Debug.Log("NOtes: " + notes.Length + notes.ToString());
+        foreach(var note in notes)
         {
-            var nN= Instantiate(savedNotePrefab,savedContext.transform);
-            Debug.Log("1");
-            nN.transform.GetComponentInChildren<TMP_Text>().text = note.ToString();
-            ToConsole(note.ToString());
+            //var nN= Instantiate(savedNotePrefab,savedContext.transform);
+            Debug.Log("1"+ note.ToString());
+           // nN.transform.GetComponentInChildren<TMP_Text>().text = note.ToString();
+            //ToConsole(note.ToString());
         }
     }
 
@@ -72,12 +85,12 @@ public class notes : MonoBehaviour
 
         Notes note = new Notes
         {
-            Creator= AuthenticationService.Instance.PlayerId,
-            Title = "Projectname" + System.DateTime.Now.ToString(),
-            Text = textNote.text,
-            Object = "none",
-            Building = "none",
-            Position = "none"
+            user_id = AuthenticationService.Instance.PlayerId,
+            title = "Projectname" + System.DateTime.Now.ToString(),
+            text = "textNote.text" ,
+            gobject = "none",
+            project_id = "none",
+            position = transform.position.ToString()
         };
 
         StartCoroutine(contactService.PostData_Coroutine(note));
@@ -89,7 +102,7 @@ public class notes : MonoBehaviour
     //Create the note list in the handy thingy
     public void OnGetNotesbyname()
     {
-        StartCoroutine(GetRequest("http://localhost:3000/note"));
+        StartCoroutine(GetRequest("http://localhost:3000/notes/11"));
         //var notes = contactService.GetNotes();
         //ToConsole(notes);
     }
@@ -107,21 +120,60 @@ public class notes : MonoBehaviour
                     Debug.LogError(string.Format("Something went wrong: {0}", webRequest.error));
                     break;
                 case UnityWebRequest.Result.Success:
-                   // Notes note =JsonConvert.DeserializeObject<Notes>(webRequest.downloadHandler.text);
-                    Notes[] notes = JsonConvert.DeserializeObject<Notes[]>(webRequest.downloadHandler.text);
 
-                    ToConsole(notes);
+                     var note= JsonConvert.DeserializeObject<Notes>(webRequest.downloadHandler.text);
+                    Debug.Log("Got: " + note.ToString());
+                    CallNoteUpdate(note);
+                    /* var notes= JsonConvert.DeserializeObject<NotesRoot>(webRequest.downloadHandler.text);
+
+                     Debug.Log("Got: " + webRequest.downloadHandler.text);
+                     
+                     foreach (var note in notes.data) 
+                     {
+                     //Debug.Log(note.ToString());
+                     }*/
+                    //ToConsole(notes);
 
 
-                 break;
+                    break;
 
             }
         }
     }
+
+
+    public void CallNoteUpdate(Notes note)
+    {
+        if (note != null)
+        {
+            StartCoroutine(UploadNotes(note, 11));
+        }
+    }
+    IEnumerator UploadNotes(Notes oldnote, int pk)
+    {
+        var newNote= UpdateNote(oldnote);
+        Debug.Log("NewNote: "+newNote.ToString());
+        var jNewNote= JsonUtility.ToJson(newNote);
+        //byte[] myData = System.Text.Encoding.UTF8.GetBytes("This is some test data");
+        using (UnityWebRequest www = UnityWebRequest.Put("http://localhost:3000/notes/11", jNewNote))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                Debug.Log("Upload complete!");
+            }
+        }
+    }
+
     public void OnGetNotesByProject()
     {
-        var notes = contactService.GetNotesFromProject("none");
-        ToConsole(notes);
+        //var notes = contactService.GetNotesFromProject("none");
+        //ToConsole(notes);
     }
 
     public void ChangeTab()
@@ -145,22 +197,22 @@ public class notes : MonoBehaviour
 
 
 
-    public void UpdateNote(Notes oldNote)
+    public Notes UpdateNote(Notes oldNote)
     {
 
         Notes note = new Notes
         {
-            Id= oldNote.Id,
-            Creator=oldNote.Creator,
-            Title = "Projectname" + System.DateTime.Now.ToString(),
-            Text = textNote.text,
-            Object = oldNote.Object,
-            Building = oldNote.Building,
-            Position = oldNote.Position
+            //Id= oldNote.Id,
+            user_id=oldNote.user_id,
+            title = "Projectname" + System.DateTime.Now.ToString(),
+            text = "just updated",
+            gobject = oldNote.gobject,
+            project_id = oldNote.project_id,
+            position = oldNote.position
         };
 
         int pk = contactService.UpdateNote(note);
-
+        return note;
         //Debug.Log("Primary Key: "+pk);
     }
 
