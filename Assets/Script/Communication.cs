@@ -9,7 +9,7 @@ using Unity.Services.Vivox;
 
 public class Communication : MonoBehaviour
 {
-    public async void LoginToVivoxAsync()
+   /* public async void LoginToVivoxAsync()
     {
         LoginOptions options = new LoginOptions();
         options.DisplayName = "none"; ////UserDisplayName;
@@ -22,5 +22,5 @@ public class Communication : MonoBehaviour
         string channelToJoin = "Lobby";
       //  await VivoxService.Instance.JoinGroupChannelAsync((string channelName, ChatCapability chatCapability, ChannelOptions channelOptions = null)) 
          //   VivoxService.Instance.JoinPositionalChannelAsync(string channelName, ChatCapability chatCapability, Channel3DProperties positionalChannelProperties, ChannelOptions channelOptions = null)
-}
+}*/
 }

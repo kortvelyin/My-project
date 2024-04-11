@@ -24,11 +24,11 @@ public class ContactService
     }
 
 
-    public IEnumerator PostData_Coroutine(Notes note)
+    public IEnumerator PostData_Coroutine(string json, string uri)
     {
-        Debug.Log("In post: "+note.ToString());
-        jnote= JsonUtility.ToJson(note);
-        using (UnityWebRequest www = UnityWebRequest.Post("http://localhost:3000/notes", jnote, "application/json"))
+        //Debug.Log("In post: "+note.ToString());
+        //jnote= JsonUtility.ToJson(note);
+        using (UnityWebRequest www = UnityWebRequest.Post(uri, json, "application/json"))
         {
             yield return www.SendWebRequest();
 

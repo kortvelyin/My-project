@@ -14,7 +14,7 @@ async void Awake()
         try
         {
             await UnityServices.InitializeAsync();
-            await VivoxService.Instance.InitializeAsync();
+           // await VivoxService.Instance.InitializeAsync();
         }
         catch (Exception e)
         {
