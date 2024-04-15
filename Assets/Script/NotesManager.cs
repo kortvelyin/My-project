@@ -11,7 +11,7 @@ using System;
 //using UnityEditor.Experimental.GraphView;
 using System.Linq;
 using System.Net;
-using static UnityEditor.Experimental.GraphView.GraphView;
+//using static UnityEditor.Experimental.GraphView.GraphView;
 using UnityEditor;
 
 public struct TableTypes
@@ -41,9 +41,9 @@ public class NotesManager : MonoBehaviour
     void Start()
     {
        
-        loginScreenUI = gameObject.AddComponent<LoginScreenUI>();
+       loginScreenUI = GameObject.Find("LoginScreenUI").GetComponent<LoginScreenUI>();
 
-        contactService = new ContactService();
+        contactService = GameObject.Find("AuthManager").GetComponent<ContactService>();
         
         // OnGetNotesByProject();
 
@@ -61,11 +61,8 @@ public class NotesManager : MonoBehaviour
     }
 
 
-     public void UNpause()
-    {
-        EditorApplication.isPaused = false;
-    }
-    private void ToConsole(List<Notes> notes)
+     
+    public void ToConsole(List<Notes> notes)
     {
         Debug.Log("Notes: " + notes.ToString());
         foreach(var note in notes)
@@ -79,69 +76,9 @@ public class NotesManager : MonoBehaviour
     }
 
 
-    public void JsonToDB(string json, string url)
-    {
-        /*if (json != null)
-        {
-            for(int i = 0; i < tableTypes.Length; i++)
-            {
-                if (url.Contains(tableTypes[i].urlContains))
-                {
-                    var notes = JsonConvert.DeserializeObject<tableTypes[i].type> (json);
-                }
-            }
-        }*/
-        switch (url)
-        {
-            case "http://localhost:3000/notes/":
-                {
-                    var notes = JsonConvert.DeserializeObject<Notes>(json);
-                    //the update
-                    break;
-                }
-            case "http://localhost:3000/notes":
-                {
-                    var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
-                    ToConsole(notes.data);
-                    break;
-                }
-            case "http://localhost:3000/users":
-                {
-                    Debug.Log(json.ToString());
-                    break;
-                }
-            case "http://localhost:3000/projects":
-                {
-                    var projects = JsonConvert.DeserializeObject<ProjectRoot>(json);
-                    //list these, string on gO, klick andturn that to blocks
-                    break;
-                }
-            default:
-                {
-                    Debug.Log("Couldn't find type");
-                    break;
-                }
-                
-        }
-        
-       
-     
+   
 
-
-    }
-
-    public void Auth(List<User> users) 
-    { 
-        foreach(User user in users)
-        {
-            if (loginScreenUI.DisplayNameInput.text == user.name)
-            {
-                loginScreenUI.LoginToVivoxService();
-                baseUser_id = user.ID.ToString();
-            }
-           // LoginScreenUI.LoginToVivoxService();
-        }
-    }
+  
     private void ToConsole(string msg)
     {
         Debug.Log(msg);
@@ -180,46 +117,12 @@ public class NotesManager : MonoBehaviour
     //Create the note list in the handy thingy
     public void OnGetNotesbyname()
     {
-        StartCoroutine(GetRequest("http://localhost:3000/notes"));
+        StartCoroutine(contactService.GetRequest("http://localhost:3000/notes"));
         //var notes = contactService.GetNotes();
         //ToConsole(notes);
     }
 
-   IEnumerator GetRequest(string uri)
-    {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
-        {
-            yield return webRequest.SendWebRequest();
-
-            switch(webRequest.result)
-            {
-                case UnityWebRequest.Result.ConnectionError:
-                case UnityWebRequest.Result.DataProcessingError:
-                    Debug.LogError(string.Format("Something went wrong: {0}", webRequest.error));
-                    break;
-                case UnityWebRequest.Result.Success:
-
-                    JsonToDB(webRequest.downloadHandler.text, uri);
-                    Debug.Log("Got: " + webRequest.downloadHandler.text);
-                    /* var note= JsonConvert.DeserializeObject<Notes>(webRequest.downloadHandler.text);
-                    Debug.Log("Got: " + note.ToString());
-                    CallNoteUpdate(note);*/
-                    /* var notes= JsonConvert.DeserializeObject<NotesRoot>(webRequest.downloadHandler.text);
-
-                     Debug.Log("Got: " + webRequest.downloadHandler.text);
-                     
-                     foreach (var note in notes.data) 
-                     {
-                     //Debug.Log(note.ToString());
-                     }*/
-                    //ToConsole(notes);
-
-
-                    break;
-
-            }
-        }
-    }
+   
 
 
     public void GetProjectList()
@@ -228,39 +131,16 @@ public class NotesManager : MonoBehaviour
         //StartCoroutine(GetRequest("http://localhost:3000/projects"));
     }
 
-    public void GetUsers()
-    {
-        StartCoroutine(GetRequest("http://localhost:3000/users"));
-        //LoginToVivoxService();
-    }
+  
 
     public void CallNoteUpdate(Notes note)
     {
         if (note != null)
         {
-            StartCoroutine(UploadNotes(note, 11));
+            StartCoroutine(contactService.UploadNotes("note", 11,"uri"));
         }
     }
-    IEnumerator UploadNotes(Notes oldnote, int pk)
-    {
-        var newNote= UpdateNote(oldnote);
-        Debug.Log("NewNote: "+newNote.ToString());
-        var jNewNote= JsonUtility.ToJson(newNote);
-        //byte[] myData = System.Text.Encoding.UTF8.GetBytes("This is some test data");
-        using (UnityWebRequest www = UnityWebRequest.Put("http://localhost:3000/notes/11", jNewNote))
-        {
-            yield return www.SendWebRequest();
-
-            if (www.result != UnityWebRequest.Result.Success)
-            {
-                Debug.Log(www.error);
-            }
-            else
-            {
-                Debug.Log("Upload complete!");
-            }
-        }
-    }
+  
 
     public void OnGetNotesByProject()
     {
@@ -268,13 +148,13 @@ public class NotesManager : MonoBehaviour
         //ToConsole(notes);
     }
 
-    public void ChangeTab()
+    public void ChangeTab(TMP_Text text)
     {
         if(savedNotes.activeSelf)
         {
             savedNotes.SetActive(false);
             newNote.SetActive(true);
-            
+            text.text = "List";
             for (var i = savedContext.transform.childCount - 1; i >= 0; i--)
             {
                 UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
@@ -284,6 +164,7 @@ public class NotesManager : MonoBehaviour
         { newNote.SetActive(false);
         savedNotes.SetActive(true);
             OnGetNotesbyname();
+            text.text = "New";
         }
     }
 
@@ -303,7 +184,7 @@ public class NotesManager : MonoBehaviour
             position = oldNote.position
         };
 
-        int pk = contactService.UpdateNote(note);
+        //int pk = UpdateNote(note.id);
         return note;
         //Debug.Log("Primary Key: "+pk);
     }

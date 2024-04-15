@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7142146390785434314}
   m_Layer: 0
-  m_Name: NewNote
+  m_Name: DATA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 1532005596667042346}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -307.77423, y: -201, z: 0.51411134}
+  m_LocalPosition: {x: -307.77423, y: -201, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 5429751382107569496}
   - component: {fileID: 7466562796553681552}
   m_Layer: 0
-  m_Name: Text (TMP) (3)
+  m_Name: title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -409,7 +409,7 @@ RectTransform:
   m_GameObject: {fileID: 2664820300482580569}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.005, y: 0.005, z: 1}
+  m_LocalScale: {x: 0.0005, y: 0.0005, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6906898983708552615}
@@ -466,7 +466,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &3478692493998259304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -753,7 +753,7 @@ GameObject:
   - component: {fileID: 5003551755620206065}
   - component: {fileID: 7920131140851309156}
   m_Layer: 0
-  m_Name: Text (TMP) (2)
+  m_Name: job
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -887,7 +887,7 @@ GameObject:
   - component: {fileID: 5003781872140814433}
   - component: {fileID: 3265485892682060662}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: username
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1155,7 +1155,7 @@ GameObject:
   - component: {fileID: 3493144612937161845}
   - component: {fileID: 2732529863240151478}
   m_Layer: 0
-  m_Name: Text (TMP) (1)
+  m_Name: company
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

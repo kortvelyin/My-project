@@ -6,17 +6,17 @@ using System.Collections.Generic;
 [Serializable]
 public class Project
 {
-    public int ID { get; set; }
-    public string name { get; set; } //projects name
-    public string start { get; set; } //date
-    public string finish { get; set; } //date
-    public string layername { get; set; } //pictures, design, interior design, BMI...
-    public string model { get; set; }// gameobject list or url for AssetBundle
+    private int ID;
+    public string name;// { get; set; } //projects name
+    public string start; //date
+    public string finish; //date
+    public string layername; //pictures, design, interior design, BMI...
+    public string model;// gameobject list or url for AssetBundle
 }
 
 public class ProjectRoot
 {
-    public int status { get; set; }
+    public int status;
     public List<Project> data { get; set; }
-    public bool success { get; set; }
+    public bool success;
 }

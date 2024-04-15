@@ -1,31 +1,36 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
+using System.Diagnostics.Tracing;
+//using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Networking;
 
+
+[Serializable]
+public class LayerItem
+{
+    public string objectType="";
+    public string name="";
+    public Transform transform=null;
+    public Color color=new Color();
+}
 public class LayerLoader : MonoBehaviour
 {
-    [System.Serializable]
-    public  struct LayerItem
-    {
-        public string objectType;
-        public string name;
-        public Transform transform;
-        public Color color;
-    }
 
     
-    public GameObject[] prefabs;
-    public GameObject userParentObject = new GameObject();
+    public List<GameObject> prefabs;
+    public GameObject userParentObject;
     ContactService contactService;
-
+    authManager authMSc;
     //url is a different thing, its an assetbundle, and a url instead of LayerItem
 
     private void Start()
     {
+        userParentObject = new GameObject();
         userParentObject.name = "userID";
-        contactService = new ContactService();
+        contactService = GameObject.Find("AuthManager").GetComponent<ContactService>();
+        authMSc = GameObject.Find("AuthManager").GetComponent<authManager>();
     }
 
     ////listprojects, string on gO, klick and turn that to blocks
@@ -42,23 +47,28 @@ public class LayerLoader : MonoBehaviour
             LayerItem layerItem = JsonUtility.FromJson<LayerItem>(layer);
             LayerInfoToLayer(layerItem, parentObject,layerName);
         }
-        else
+        else if(layer.Contains("htt"))
         {
             StartCoroutine(GetAssetBundle(parentObject));
         }
-    }
+        else
+        {
+            //do nothing, change button color?
+        }
+                
+                }
 
     public void LayerInfoToLayer(LayerItem layerItem, GameObject parentObject, string layerName)
     {
         GameObject item=null;
-        if(layerItem.objectType == "cube")
+        if(layerItem.objectType == "Cube")
         {
             item= GameObject.CreatePrimitive(PrimitiveType.Cube);
             item.name=layerItem.name;
         }
         else if(prefabs.ToString().Contains(layerItem.objectType))
         {
-            for(int i = 0; i < prefabs.Length; i++)
+            for(int i = 0; i < prefabs.Count; i++)
             {
                 if (prefabs[i].name == layerItem.name)
                 {
@@ -109,25 +119,45 @@ public class LayerLoader : MonoBehaviour
     //get objects by tag put them into sstruct
     //update changes to assettbundle upload
 
-    public LayerItem[] SaveBlocks(string layerName)
+
+   
+    public List<LayerItem> SaveBlocks(string layerName="none")
     {
+        layerName = authMSc.userData.name;
        GameObject[] blocks= GameObject.FindGameObjectsWithTag(layerName);
-        LayerItem[] upBlocks=new LayerItem[blocks.Length];
-        for(int i=0;i<blocks.Length;i++)
+        List<LayerItem> upBlocks = new List<LayerItem>(new LayerItem[blocks.Length]);//new LayerItem[blocks.Length];
+        int i = 0;
+        Debug.Log("Number of cubes: "+blocks.Length);
+        foreach (var block in upBlocks)//(int i=0;i<blocks.Length;i++)
         {
-            upBlocks[i].objectType = "cube";//right now it's always a cube, but it could be set with a button
-            upBlocks[i].name= layerName; //tag?
-            upBlocks[i].transform= blocks[i].transform;
-            upBlocks[i].color = blocks[i].GetComponent<Renderer>().material.color;
+
+            block.objectType = "Cube"; //Object reference is null                                                                                 //right now it's always a cube, but it will be set with a button
+            block.name= layerName; //tag?
+            block.transform= blocks[i].transform;
+            block.color = blocks[i].GetComponentInChildren<Renderer>().material.color;
+            Destroy(blocks[i].gameObject);
+            i++;
         }
 
         return upBlocks;
     }
 
-    public void LayerToServer(string layerName)
+    public void LayerToServer(string layerName="demo")
     {
-        LayerItem[] doneModelArray = SaveBlocks(layerName);
-        var jnote = JsonUtility.ToJson(doneModelArray);
-        StartCoroutine(contactService.PostData_Coroutine(jnote, "http://localhost:3000/projects"));
+        layerName = authMSc.userData.name;
+        List<LayerItem> doneModelArray = SaveBlocks(layerName);
+        var jlayer = JsonUtility.ToJson(doneModelArray);
+        var upProjectItem = new Project
+        {
+            name = "Test",
+            start= "now",
+            finish= "2024.02.24.",
+            layername= layerName,
+            model= jlayer
+        };
+        
+        var jProjectItem = JsonUtility.ToJson(upProjectItem);
+        Debug.Log("Posting ProjectItem+ " + jProjectItem);
+        StartCoroutine(contactService.PostData_Coroutine(jProjectItem, "http://localhost:3000/projects"));
     }
 }

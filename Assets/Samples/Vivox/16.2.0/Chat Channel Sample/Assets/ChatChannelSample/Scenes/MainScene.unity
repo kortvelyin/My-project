@@ -123,6 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &402186556 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1419012406513782206, guid: 82e808aa8b319b642beb1bf992d4e2de, type: 3}
+  m_PrefabInstance: {fileID: 1950854567413855588}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &764687250
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,9 +356,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2071844878016689701, guid: 82e808aa8b319b642beb1bf992d4e2de, type: 3}
+      propertyPath: lobbyScreenUI
+      value: 
+      objectReference: {fileID: 402186556}
     - target: {fileID: 2632235290704805053, guid: 82e808aa8b319b642beb1bf992d4e2de, type: 3}
       propertyPath: m_Name
       value: Vivox
+      objectReference: {fileID: 0}
+    - target: {fileID: 6683271551291966512, guid: 82e808aa8b319b642beb1bf992d4e2de, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -1.0000305
       objectReference: {fileID: 0}
     - target: {fileID: 8553635164135590907, guid: 82e808aa8b319b642beb1bf992d4e2de, type: 3}
       propertyPath: m_LocalPosition.x

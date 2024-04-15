@@ -667,7 +667,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &2211762828763746950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -705,6 +705,7 @@ MonoBehaviour:
   savedNotePrefab: {fileID: 3574187470030921745, guid: e75d388cd17b8394c89bc4e9e443052d, type: 3}
   savedContext: {fileID: 0}
   textNote: {fileID: 0}
+  titleNote: {fileID: 0}
 --- !u!1 &6521687255360253365
 GameObject:
   m_ObjectHideFlags: 0
