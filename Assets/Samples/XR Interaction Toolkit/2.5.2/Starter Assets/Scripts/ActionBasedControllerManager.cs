@@ -163,7 +163,7 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             if (teleportModeCancelAction != null)
             {
                 teleportModeCancelAction.performed += OnCancelTeleport;
-                teleportModeActivateAction.canceled += OnStopLocomotion;
+               // teleportModeActivateAction.canceled += OnStopLocomotion;
             }
 
             var moveAction = GetInputAction(m_Move);

@@ -25,7 +25,7 @@ public class Notes
     
     public override string ToString()
     {
-        return string.Format(" user_id:{0}, title:{1}, text:{2}, gobject:{3}, project_id:{4}, position:{5}", user_id, title, text, gobject, project_id, position);
+        return string.Format(" user_id:{0}, title:{1}, text:{2}, gobject:{3}, position:{4}", user_id, title, text, gobject, position);
     }
 
     public string TitleToString()

@@ -39,7 +39,7 @@ public class LoginScreenUI : MonoBehaviour
 
     void Start()
     {
-        //authM = GameObject.Find("AuthManager").GetComponent<authManager>();
+        authM = GameObject.Find("AuthManager").GetComponent<authManager>();
         var  goodPlace = GameObject.Find("LoginScreenUI");
         if (this == goodPlace.GetComponent<LoginScreenUI>())
         {
@@ -55,13 +55,17 @@ public class LoginScreenUI : MonoBehaviour
         DisplayNameInput.interactable = false;
 #else
         
-      // DisplayNameInput.onEndEdit.AddListener((string text) => { LoginToVivoxService(); });
+       DisplayNameInput.onEndEdit.AddListener((string text) => { LoginToVivoxService(); });
 #endif
-      //  LoginButton.onClick.AddListener(() => { LoginToVivoxService(); });
+        LoginButton.onClick.AddListener(() => { LoginToVivoxService(); });
 
-        OnUserLoggedOut();
+        
         var systInfoDeviceName = String.IsNullOrWhiteSpace(SystemInfo.deviceName) == false ? SystemInfo.deviceName : Environment.MachineName;
             DisplayNameInput.text = "Arnold A.";//Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
+           // DisplayNameInput.text = Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
+
+            authM.GetUsers();
+            OnUserLoggedOut();
         }
             
     }
@@ -174,9 +178,14 @@ public class LoginScreenUI : MonoBehaviour
 
     public void LoginToVivoxService()
     {
+         //VivoxService.Instance.InitializeAsync();
+        m_EventSystem = FindObjectOfType<EventSystem>();
+        VivoxService.Instance.LoggedIn += OnUserLoggedIn;
+        VivoxService.Instance.LoggedOut += OnUserLoggedOut;
         Debug.Log("LoginToVivoxService() was called");
         if (IsMicPermissionGranted())
         {
+            Debug.Log("MicPermissionGranted");
             // The user authorized use of the microphone.
             LoginToVivox();
         }
@@ -186,6 +195,7 @@ public class LoginScreenUI : MonoBehaviour
             // Ask for permissions or proceed without the functionality enabled if they were denied by the user
             if (IsPermissionsDenied())
             {
+                Debug.Log("LoginToVivoxService() permissiondenied");
                 m_PermissionAskedCount = 0;
                 LoginToVivox();
             }
@@ -198,24 +208,41 @@ public class LoginScreenUI : MonoBehaviour
 
     async void LoginToVivox()
     {
+        Debug.Log("LoginToVivox() was called");
         LoginButton.interactable = false;
         if(authM==null)
             authM = GameObject.Find("AuthManager").GetComponent<authManager>();
-        //var correctedDisplayName = Regex.Replace(DisplayNameInput.text, "[^a-zA-Z0-9_-]", "");
-        DisplayNameInput.text = authM.userData.name; //correctedDisplayName.Substring(0, Math.Min(correctedDisplayName.Length, 30));
+            //var correctedDisplayName = Regex.Replace(DisplayNameInput.text, "[^a-zA-Z0-9_-]", "");
+            DisplayNameInput.text = authM.userData.name; //correctedDisplayName.Substring(0, Math.Min(correctedDisplayName.Length, 30));
+        //DisplayNameInput.text = correctedDisplayName.Substring(0, Math.Min(correctedDisplayName.Length, 30));
+        Debug.Log("DisplayNameInput.text: " + DisplayNameInput.text);
+        Debug.Log("correctedDisplayName: " + Regex.Replace(DisplayNameInput.text, "[^a-zA-Z0-9_-]", ""));
+
         if (string.IsNullOrEmpty(DisplayNameInput.text))
         {
             Debug.LogError("Please enter a display name.");
             return;
         }
+
         await VivoxVoiceManager.Instance.InitializeAsync(DisplayNameInput.text);
         var loginOptions = new LoginOptions()
         {
             DisplayName = DisplayNameInput.text,
-            ParticipantUpdateFrequency = ParticipantPropertyUpdateFrequency.FivePerSecond
-        };
+            ParticipantUpdateFrequency = ParticipantPropertyUpdateFrequency.FivePerSecond,
+            EnableTTS = true
+    };
+      
+       // await VivoxService.Instance.InitializeAsync();
+       // await VivoxService.Instance.LoginAsync();
+        
         await VivoxService.Instance.LoginAsync(loginOptions);
+        
         lobbyScreenUI.SetActive(true);
+    }
+
+    public async void LogoutOfVivoxAsync()
+    {
+        await VivoxService.Instance.LogoutAsync();
     }
 
     void OnUserLoggedIn()
@@ -225,6 +252,7 @@ public class LoginScreenUI : MonoBehaviour
 
     void OnUserLoggedOut()
     {
+        //LoginToVivoxService();
         ShowLoginUI();
     }
 }

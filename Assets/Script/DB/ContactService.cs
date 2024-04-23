@@ -11,52 +11,38 @@ public class ContactService : MonoBehaviour
     Build build;
     DB dB;
     string jnote;
-
+    public GameObject commCube;
 
      void Start()
     {
         authM = GameObject.Find("AuthManager").GetComponent<authManager>();
-        
         notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
         build = GameObject.Find("Building").GetComponent<Build>();
     }
     
-
-    public void CreateNotesTable()
-    {
-       dB.GetConnection().DropTable<Notes>();
-       dB.GetConnection().CreateTable<Notes>();
-    }
-
-    public int AddNote(Notes note)
-    {
-        return dB.GetConnection().Insert(note);
-    }
-
     public void JsonToDB(string json, string url)
     {
-        /*if (json != null)
-        {
-            for(int i = 0; i < tableTypes.Length; i++)
-            {
-                if (url.Contains(tableTypes[i].urlContains))
-                {
-                    var notes = JsonConvert.DeserializeObject<tableTypes[i].type> (json);
-                }
-            }
-        }*/
         switch (url)
         {
             case "http://localhost:3000/notes/":
                 {
                     var notes = JsonConvert.DeserializeObject<Notes>(json);
                     //the update
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     break;
                 }
             case "http://localhost:3000/notes":
                 {
                     var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
                     notesManager.ToConsole(notes.data);
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
+                    break;
+                }
+            case "http://localhost:3000/notes/byproject/:project_id":
+                {
+                    var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
+                    notesManager.ToConsole(notes.data);
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     break;
                 }
             case "http://localhost:3000/users":
@@ -65,27 +51,44 @@ public class ContactService : MonoBehaviour
                     if(authM==null)
                         authM= GameObject.Find("AuthManager").GetComponent<authManager>();
                     authM.Auth(json);
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     break;
                 }
             case "http://localhost:3000/projects":
                 {
                     var projects = JsonConvert.DeserializeObject<ProjectRoot>(json);
                     //list these, string on gO, klick andturn that to blocks
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     break;
                 }
-            case "http://localhost:3000/projects/byname/Test":
+            case "http://localhost:3000/projects/byname/Demo":
                 {
                     if (build == null)
                         build = GameObject.Find("Building").GetComponent<Build>();
                     var projects = JsonConvert.DeserializeObject<ProjectRoot>(json);
                     build.ToConsole(projects.data);
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     break;
                 }
             default:
                 {
+                   if(url.Contains("http://localhost:3000/notes/:"))
+                    {
+                        commCube.GetComponent<MeshRenderer>().material.color = Color.green;
+                        break;
+                    }
+                    if (url.Contains("http://localhost:3000/projects/:"))
+                    {
+                        commCube.GetComponent<MeshRenderer>().material.color = Color.green;
+                        break; 
+                    }
+                    else
+                    {
+                        commCube.GetComponent<MeshRenderer>().material.color = Color.black;
+                        Debug.Log("Couldn't find type: " + url);
+                        break;
+                    }
                    
-                    Debug.Log("Couldn't find type: "+url);
-                    break;
                 }
 
         }
@@ -100,6 +103,7 @@ public class ContactService : MonoBehaviour
     public IEnumerator PostData_Coroutine(string json, string uri)
     {
         Debug.Log("In post: "+json+" url: "+uri);
+        commCube.GetComponent<MeshRenderer>().material.color = Color.blue;
         //jnote= JsonUtility.ToJson(note);
         using (UnityWebRequest www = UnityWebRequest.Post(uri, json, "application/json"))
         {
@@ -111,7 +115,8 @@ public class ContactService : MonoBehaviour
             }
             else
             {
-                Debug.Log("Form upload complete!: "+ jnote);
+                Debug.Log("Form upload complete!: "+ json);
+                commCube.GetComponent<MeshRenderer>().material.color = Color.grey;
             }
         }
     }
@@ -119,6 +124,7 @@ public class ContactService : MonoBehaviour
 
    public IEnumerator GetRequest(string uri)
     {
+        commCube.GetComponent<MeshRenderer>().material.color = Color.cyan;
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
         {
             yield return webRequest.SendWebRequest();

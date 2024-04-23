@@ -11,6 +11,7 @@ public class LobbyScreenUI : MonoBehaviour
     public GameObject LobbyScreen;
     public GameObject ConnectionIndicatorDot;
     public GameObject ConnectionIndicatorText;
+    LoginScreenUI loginScreen;
 
     EventSystem m_EventSystem;
     Image m_ConnectionIndicatorDotImage;
@@ -18,6 +19,7 @@ public class LobbyScreenUI : MonoBehaviour
 
     void Start()
     {
+        loginScreen = GameObject.Find("LoginScreenUI").GetComponent<LoginScreenUI>();
         m_EventSystem = EventSystem.current;
         if (!m_EventSystem)
         {
@@ -81,14 +83,18 @@ public class LobbyScreenUI : MonoBehaviour
         Debug.Log("USER LOGGED IN");
         LobbyScreen.SetActive(true);
         await JoinLobbyChannel();
-        LogoutButton.interactable = true;
+        //LogoutButton.interactable = true;
+        LogoutButton.gameObject.SetActive(false);
         m_EventSystem.SetSelectedGameObject(LogoutButton.gameObject, null);
     }
 
     void OnUserLoggedOut()
     {
         Debug.Log("USER LOGGED OUT");
-        LobbyScreen.SetActive(false);
+        LogoutButton.gameObject.SetActive(false);
+        //JoinLobbyChannel();
+        //loginScreen.LoginToVivoxService();
+        // LobbyScreen.SetActive(false);
     }
 
     void OnConnectionRecovering()

@@ -702,8 +702,12 @@ MonoBehaviour:
   headCamera: {fileID: 0}
   newNote: {fileID: 0}
   savedNotes: {fileID: 0}
-  savedNotePrefab: {fileID: 3574187470030921745, guid: e75d388cd17b8394c89bc4e9e443052d, type: 3}
+  savedNotePrefab: {fileID: 1302453097221575638, guid: e75d388cd17b8394c89bc4e9e443052d, type: 3}
   savedContext: {fileID: 0}
+  oneContext: {fileID: 0}
+  saveB: {fileID: 0}
+  colorGO: {fileID: 0}
+  gOname: {fileID: 0}
   textNote: {fileID: 0}
   titleNote: {fileID: 0}
 --- !u!1 &6521687255360253365

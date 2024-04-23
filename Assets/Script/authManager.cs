@@ -18,6 +18,7 @@ public class authManager : MonoBehaviour
     public TMP_Text password;
     [HideInInspector]
     public User userData;
+    public UserRoot users;
 
     LoginScreenUI loginScreenUI;
     ContactService contactService;
@@ -43,17 +44,18 @@ public class authManager : MonoBehaviour
         loggedInID = Instantiate(userID,idOrigin.transform);
         data = loggedInID.transform.Find("DATA");
         SetupEvents();
-        GetUsers();
+        //GetUsers();
     }
 
 
     public void Auth(string json)
     {
-         var users = JsonConvert.DeserializeObject<UserRoot>(json);
+         users = JsonConvert.DeserializeObject<UserRoot>(json);
         foreach (User user in users.data)
         {
             if ("Arnold A." == user.name)//(loginScreenUI.DisplayNameInput.text == user.name)
             {
+                
                 userData = user;
                 Debug.Log("Creating UserID");
                 data.transform.Find("username").gameObject.GetComponent<TMP_Text>().text = user.name;
@@ -63,6 +65,7 @@ public class authManager : MonoBehaviour
                 baseUser_id = user.ID.ToString();
                 if(loginScreenUI==null)
                     loginScreenUI = GameObject.Find("LoginScreenUI").GetComponent<LoginScreenUI>();
+                SignIn();
                 loginScreenUI.LoginToVivoxService();
             }
             
@@ -114,7 +117,11 @@ public class authManager : MonoBehaviour
     public async void SignIn()
     {
         await SignInAnonymouslyAsync();
-        
+        await UnityServices.InitializeAsync();
+       // await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+       
+
     }
 
     async Task SignInAnonymouslyAsync()
@@ -183,6 +190,11 @@ public class authManager : MonoBehaviour
             // Notify the player with the proper error message
             Debug.LogException(ex);
         }
+    }
+
+    public string GetUserNameByID(int id)
+    {
+        return users.data[id - 1].name;
     }
 }
 
