@@ -107,6 +107,8 @@ MonoBehaviour:
   saveB: {fileID: 0}
   colorGO: {fileID: 0}
   gOname: {fileID: 0}
+  gOpos: {fileID: 0}
+  layerNote: {fileID: 0}
   textNote: {fileID: 6252698591589974061}
   titleNote: {fileID: 2199295884744826810}
 --- !u!114 &7475296329312860713

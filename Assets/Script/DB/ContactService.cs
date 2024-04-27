@@ -12,6 +12,7 @@ public class ContactService : MonoBehaviour
     DB dB;
     string jnote;
     public GameObject commCube;
+    public 
 
      void Start()
     {

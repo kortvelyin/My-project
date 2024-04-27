@@ -74,7 +74,8 @@ public class authManager : MonoBehaviour
 
     public void GetUsers()
     {
-        StartCoroutine(contactService.GetRequest("http://localhost:3000/users"));
+       // StartCoroutine(contactService.GetRequest("http://localhost:3000/users"));
+        StartCoroutine(contactService.GetRequest("http://10.1.101.181:3000/users"));
         
     }
 

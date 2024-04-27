@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 public class TextChatUI : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class TextChatUI : MonoBehaviour
     public GameObject ChatContentObj;
     public GameObject MessageObject;
     public Button EnterButton;
-    public InputField MessageInputField;
+    public TMP_InputField MessageInputField;
     public Button SendTTSMessageButton;
     public Toggle ToggleTTS;
     public GameObject ChannelEffectPanel;
