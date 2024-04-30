@@ -7,6 +7,7 @@ TagManager:
   - Anchor
   - Arnold A.
   - Note
+  - showroom
   layers:
   - Default
   - TransparentFX

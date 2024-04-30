@@ -134,7 +134,7 @@ public class NotesManager : MonoBehaviour
         goN.AddComponent<Button>().onClick.AddListener(() => ShowNote(jnote));
         goN.tag = "Note";
         
-        StartCoroutine(contactService.PostData_Coroutine(jnote, "http://localhost:3000/notes"));
+        StartCoroutine(contactService.PostData_Coroutine(jnote, "http://"+authSc.ipAddress+":3000/notes"));
         // int pk= contactService.AddNote(note);
 
         //Debug.Log("Primary Key: "+pk);
@@ -161,7 +161,7 @@ public class NotesManager : MonoBehaviour
     //Create the note list in the handy thingy
     public void OnGetNotesbyname()
     {
-        StartCoroutine(contactService.GetRequest("http://localhost:3000/notes"));
+        StartCoroutine(contactService.GetRequest("http://"+authSc.ipAddress+":3000/notes"));
         //var notes = contactService.GetNotes();
         //ToConsole(notes);
     }
@@ -169,14 +169,14 @@ public class NotesManager : MonoBehaviour
 
     public void OnGetOneNotebyID(string id)
     {
-        StartCoroutine(contactService.GetRequest("http://localhost:3000/notes/:"+id));
+        StartCoroutine(contactService.GetRequest("http://"+authSc.ipAddress+":3000/notes/:" + id));
         //var notes = contactService.GetNotes();
         //ToConsole(notes);
     }
 
     public void OnGetNoteListbyProjectID(string id)
     {
-        StartCoroutine(contactService.GetRequest("http://localhost:3000/notes/byproject/" + id));
+        StartCoroutine(contactService.GetRequest("http://"+authSc.ipAddress+":3000/notes/byproject/" + id));
         //var notes = contactService.GetNotes();
         //ToConsole(notes);
     }
@@ -184,10 +184,10 @@ public class NotesManager : MonoBehaviour
     public void GetProjectList()
     {
         Debug.Log("GetProjectList()");
-        //StartCoroutine(GetRequest("http://localhost:3000/projects"));
+        //StartCoroutine(GetRequest("http://"+authSc.ipAddress+":3000/projects"));
     }
 
-  
+
 
     public void CallNoteUpdate(Notes note)
     {

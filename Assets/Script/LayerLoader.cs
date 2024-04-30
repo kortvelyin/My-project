@@ -6,14 +6,19 @@ using System.Diagnostics.Tracing;
 using UnityEngine;
 using UnityEngine.Networking;
 //using static UnityEditor.Experimental.GraphView.GraphView;
-
+using TMPro;
+using UnityEngine.UI;
+using Newtonsoft.Json;
+using Palmmedia.ReportGenerator.Core.Common;
+using Newtonsoft.Json.Serialization;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 [Serializable]
 public class LayerItem
 {
     public string objectType="";
     public string name="";
-    public Transform transform=null;
+    public string transform=null;
     public Color color=new Color();
 }
 public class LayerLoader : MonoBehaviour
@@ -24,15 +29,21 @@ public class LayerLoader : MonoBehaviour
     public GameObject userParentObject;
     ContactService contactService;
     authManager authMSc;
+    Build buildSc;
+    public bool isInColorMode;
+
     //url is a different thing, its an assetbundle, and a url instead of LayerItem
 
     private void Start()
     {
+        buildSc = GameObject.Find("Building").GetComponent<Build>();
+        
         userParentObject = new GameObject();
         userParentObject.name = "userID";
         contactService = GameObject.Find("AuthManager").GetComponent<ContactService>();
         authMSc = GameObject.Find("AuthManager").GetComponent<authManager>();
-        
+       // LayerToServer("showroom");
+
     }
 
     ////listprojects, string on gO, klick and turn that to blocks
@@ -42,13 +53,22 @@ public class LayerLoader : MonoBehaviour
 
     public void LayerJsonToLayerBegin(string layerName, string layer)
     {
+        Debug.Log("layer: "+layer);
         var parentObject = new GameObject(layerName);
         parentObject.transform.parent = userParentObject.transform;
         if (layer.Contains("layeritem"))
         {
-            Project getLayer = JsonUtility.FromJson<Project>(layer);
+            Debug.Log("it is indeed full of layeritems");
             
-            LayerInfoToLayer(getLayer, parentObject, layerName);
+            
+            LayerInfoToLayer(layer, parentObject, layerName);
+        }
+        else if(layer.Contains("Item"))//with jsonHelper
+        {
+            Debug.Log("it is indeed full of items");
+            
+
+            LayerInfoToLayer(layer, parentObject, layerName);
         }
         else if (layer.Contains("htt"))
         {
@@ -56,52 +76,66 @@ public class LayerLoader : MonoBehaviour
         }
         else
         {
-            //do nothing, change button color?
+            Debug.Log("Couldn't find layer type");
         }
 
     }
 
-    public void LayerInfoToLayer(Project getLayer, GameObject parentObject, string layerName)
+    public void LayerInfoToLayer(string model, GameObject parentObject, string layerName)
     {
-        List<string> layerItemList = JsonUtility.FromJson<List<string>>(getLayer.model);
+        var layerItemList = JsonHelper.FromJson<string>(model);
+       
         GameObject item = null;
         foreach (var layerItem in layerItemList)
         {
             LayerItem lItem = JsonUtility.FromJson<LayerItem>(layerItem);
-            if (lItem.objectType == "Cube")
+            Debug.Log(" item type: " + layerItem);
+            for (int i = 0; i < prefabs.Count; i++)
             {
-                item = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                item.name = lItem.name;
-            }
-            else if (prefabs.ToString().Contains(lItem.objectType))
-            {
-                for (int i = 0; i < prefabs.Count; i++)
+                //Debug.Log(" prefabs[i].name: " + prefabs[i].name);
+                if (lItem.objectType.Contains(prefabs[i].name))
                 {
-                    if (prefabs[i].name == lItem.name)
-                    {
+                        Debug.Log("contains prefabs[i].name: " + prefabs[i].name);
                         item = Instantiate(prefabs[i]);
-                        break;
-                    }
+                    item.gameObject.tag = layerName;
+                    item.name = lItem.objectType;
+                    item.transform.parent = parentObject.transform;
+                    var transfromArray= JsonHelper.FromJson<String>(lItem.transform);
+
+                    item.transform.position = JsonUtility.FromJson<Vector3>(transfromArray[0]);
+                    Debug.Log("pos: " + item.transform.position);
+                    item.transform.rotation = JsonUtility.FromJson<Quaternion>(transfromArray[1]);
+                    Debug.Log("rot: " + item.transform.rotation);
+                    item.transform.localScale = JsonUtility.FromJson<Vector3>(transfromArray[2]);
+                    Debug.Log("scale: " + item.transform.lossyScale);
+                    item.AddComponent<Changes>().ogMaterial = item.GetComponent<Renderer>().material;
+                    item.GetComponentInChildren<Renderer>().material.color = lItem.color;
                 }
             }
-            else
-            {
-                item = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                item.GetComponent<Renderer>().material.color = Color.red;
+            
+        }
 
-            }
-            item.gameObject.tag = layerName;
-            item.name = lItem.name;
-            item.transform.parent = parentObject.transform;
-            item.transform.position = lItem.transform.position;
-            item.transform.rotation = lItem.transform.rotation;
-            item.transform.localScale = lItem.transform.localScale;
-            item.GetComponentInChildren<Renderer>().material.color = lItem.color;
+  if(item == null) 
+            {
+               
+                contactService.commCube.GetComponent<Renderer>().material.color = Color.red;
+            Debug.Log("couldnt find match in layer recreation ");
 
         }
+
        
     }
 
+
+    public string TransformStringFromData(Transform transform)
+    {
+        string[] transformArray =new string[3];
+        transformArray[0]= JsonUtility.ToJson(transform.position);
+        transformArray[1] = JsonUtility.ToJson(transform.rotation);
+        transformArray[2] = JsonUtility.ToJson(transform.lossyScale);
+
+        return JsonHelper.ToJson(transformArray);
+    }
     IEnumerator GetAssetBundle(GameObject parent)
     {
         UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle("https://www.my-server.com/myData.unity3d");
@@ -125,53 +159,72 @@ public class LayerLoader : MonoBehaviour
         }
     }
 
-    //set tag to parents tag
-    //get objects by tag put them into sstruct
-    //update changes to assettbundle upload
+   
 
 
 
-    public List<string> SaveBlocks(string layerName = "none")
+    public string SaveBlocks(string layerName = "none")
     {
-        layerName = authMSc.userData.name;
+        //layerName = authMSc.userData.name;
         GameObject[] blocks = GameObject.FindGameObjectsWithTag(layerName);
-        List<string> upBlocks = new List<string>(new string[blocks.Length]);//new LayerItem[blocks.Length];
+        //List<string> upBlocks = new List<string>();//(new string[blocks.Length]);//new LayerItem[blocks.Length];
+        string[] upBlocks = new string[blocks.Length];
         //int i = 0;
-        Debug.Log("Number of cubes: " + blocks.Length);
+        
         for (int i = 0; i < blocks.Length; i++)
         {
             var postLayerI = new LayerItem();
 
             postLayerI.name = layerName; //tag?
-            postLayerI.objectType = "Cube";
-            postLayerI.transform = blocks[i].transform;
+            postLayerI.objectType = blocks[i].name.Replace('/', '_');
+            
+            postLayerI.transform = TransformStringFromData(blocks[i].transform);
             postLayerI.color = blocks[i].GetComponentInChildren<Renderer>().material.color;
 
             Destroy(blocks[i].gameObject);
             upBlocks[i]= JsonUtility.ToJson(postLayerI);
-            Debug.Log("layeriteminpost: " + upBlocks[i]);
+            //Debug.Log("layeriteminpost: " + upBlocks[i]);
         }
-
-        return upBlocks;
+        
+        var postStrinsArr=JsonHelper.ToJson(upBlocks);
+        
+        Debug.Log("string jlist2: " + postStrinsArr);
+        
+            return postStrinsArr;
     }
 
     public void LayerToServer(string layerName = "demo")
     {
-        layerName = authMSc.userData.name;
-        List<string> doneModelArray = SaveBlocks(layerName);
-        var jlayer = JsonUtility.ToJson(doneModelArray);
+        layerName = "showroom";//authMSc.userData.name;
+        var doneModelArray = SaveBlocks(layerName);
+        Debug.Log("doneModelArray: " + doneModelArray);
+        
+        //var jlayer = JsonUtility.ToJson(doneModelArray);
         var upProjectItem = new Project
         {
             name = "Demo",
             start = "2024",
             finish = "2024.07.04.",
             layername = layerName,
-            model = jlayer
+            model = doneModelArray
         };
 
         var jProjectItem = JsonUtility.ToJson(upProjectItem);
         Debug.Log("Posting ProjectItem+ " + jProjectItem);
-        StartCoroutine(contactService.PostData_Coroutine(jProjectItem, "http://localhost:3000/projects"));
+        StartCoroutine(contactService.PostData_Coroutine(jProjectItem, "http://"+authMSc.ipAddress+":3000/projects"));
+    }
+
+
+    public void ObjectColorModeToggle(Button button)
+    {
+        isInColorMode = !isInColorMode;
+        if (isInColorMode)
+        {
+            button.GetComponent<Image>().color = new Color(0.3f, 0.6f, 0.6f);
+        }
+        else
+            button.GetComponent<Image>().color = Color.white;
+
     }
 
 }

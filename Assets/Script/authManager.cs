@@ -16,12 +16,14 @@ public class authManager : MonoBehaviour
     public GameObject signInDisplay;
     public TMP_Text username;
     public TMP_Text password;
+    public string ipAddress= "10.1.101.181";
     [HideInInspector]
     public User userData;
     public UserRoot users;
 
     LoginScreenUI loginScreenUI;
     ContactService contactService;
+    LayerLoader layerSc;
 
 
     private string baseUser_id;
@@ -33,6 +35,7 @@ public class authManager : MonoBehaviour
 
     async void Awake()
     {
+        layerSc = GameObject.Find("Building").GetComponent<LayerLoader>();
         contactService = GetComponent<ContactService>();
         loginScreenUI = GameObject.Find("LoginScreenUI").GetComponent<LoginScreenUI>();
         await UnityServices.InitializeAsync();
@@ -44,7 +47,9 @@ public class authManager : MonoBehaviour
         loggedInID = Instantiate(userID,idOrigin.transform);
         data = loggedInID.transform.Find("DATA");
         SetupEvents();
-        //GetUsers();
+        GetUsers();
+
+        
     }
 
 
@@ -67,6 +72,7 @@ public class authManager : MonoBehaviour
                     loginScreenUI = GameObject.Find("LoginScreenUI").GetComponent<LoginScreenUI>();
                 SignIn();
                 loginScreenUI.LoginToVivoxService();
+               
             }
             
         }
@@ -74,9 +80,12 @@ public class authManager : MonoBehaviour
 
     public void GetUsers()
     {
-       // StartCoroutine(contactService.GetRequest("http://localhost:3000/users"));
-        StartCoroutine(contactService.GetRequest("http://10.1.101.181:3000/users"));
-        
+        // StartCoroutine(contactService.GetRequest("http://localhost:3000/users"));
+        //StartCoroutine(contactService.GetRequest("http://10.1.101.181:3000/users"));
+        //ipAddress = "10.1.101.181";
+        string uri = "http://" + ipAddress + ":3000/users";
+        Debug.Log(uri);
+        StartCoroutine(contactService.GetRequest(uri));
     }
 
     void SetupEvents()

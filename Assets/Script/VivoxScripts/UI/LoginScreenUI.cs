@@ -64,7 +64,7 @@ public class LoginScreenUI : MonoBehaviour
             DisplayNameInput.text = "Arnold A.";//Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
            // DisplayNameInput.text = Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
 
-            authM.GetUsers();
+           // authM.GetUsers();
             OnUserLoggedOut();
         }
             

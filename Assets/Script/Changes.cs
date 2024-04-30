@@ -5,39 +5,42 @@ using UnityEngine;
 public class Changes : MonoBehaviour
 {
     //Original data
-    private Color ogColor;
-    private Material ogMaterial;
-    private Transform ogTransform;
+    [HideInInspector]
+    public Color ogColor;
+    [HideInInspector]
+    public Material ogMaterial;
+    [HideInInspector]
+    public Transform ogTransform;
 
     // Start is called before the first frame update
     void Start()
     {
-        ogColor=this.gameObject.GetComponent<Material>().color;
+        ogColor=gameObject.GetComponent<Renderer>().material.color;
         ogMaterial = this.gameObject.GetComponent<Material>();
         ogTransform = this.gameObject.transform;
     }
 
    public void ChangeColor()
     {
-        if(gameObject.GetComponent<Material>().color==ogColor)
+        if(gameObject.GetComponent<Renderer>().material.color == ogColor)
         {
-            gameObject.GetComponent<Material>().color = Color.green;
+            gameObject.GetComponent<Renderer>().material.color = Color.green;
         }
-        else if (gameObject.GetComponent<Material>().color == Color.green)
+        else if (gameObject.GetComponent<Renderer>().material.color == Color.green)
         {
-            gameObject.GetComponent<Material>().color = Color.yellow;
+            gameObject.GetComponent<Renderer>().material.color = Color.yellow;
         }
-        else if (gameObject.GetComponent<Material>().color == Color.yellow)
+        else if (gameObject.GetComponent<Renderer>().material.color == Color.yellow)
         {
-            gameObject.GetComponent<Material>().color = Color.red;
+            gameObject.GetComponent<Renderer>().material.color = Color.red;
         }
-        else if (gameObject.GetComponent<Material>().color == Color.red)
+        else if (gameObject.GetComponent<Renderer>().material.color == Color.red)
         {
-            gameObject.GetComponent<Material>().color = Color.clear;
+            gameObject.GetComponent<Renderer>().material.color = Color.clear;
         }
-        else if (gameObject.GetComponent<Material>().color == Color.clear)
+        else if (gameObject.GetComponent<Renderer>().material.color == Color.clear)
         {
-            gameObject.GetComponent<Material>().color =ogColor;
+            gameObject.GetComponent<Renderer>().material.color = ogColor;
         }
     }
 }

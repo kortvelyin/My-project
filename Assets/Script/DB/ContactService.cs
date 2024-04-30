@@ -21,83 +21,84 @@ public class ContactService : MonoBehaviour
         build = GameObject.Find("Building").GetComponent<Build>();
     }
     
+
+    //this became something very different from the name, but it's a crossroad for 
+    //could be a double string list with url and function to call
     public void JsonToDB(string json, string url)
     {
-        switch (url)
-        {
-            case "http://localhost:3000/notes/":
+        Debug.Log("json to db: "+url);
+        
+            if (url.Contains("http://"+authM.ipAddress+":3000/notes/"))
                 {
                     var notes = JsonConvert.DeserializeObject<Notes>(json);
                     //the update
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    break;
+                    
                 }
-            case "http://localhost:3000/notes":
+        else if (url=="http://" + authM.ipAddress + ":3000/projects/byname/Demo")
+        {
+            Debug.Log("demo was found: ");
+            //layers for the Demo project
+            if (build == null)
+                build = GameObject.Find("Building").GetComponent<Build>();
+            var projects = JsonConvert.DeserializeObject<ProjectRoot>(json);
+            build.ToConsole(projects.data);
+            commCube.GetComponent<MeshRenderer>().material.color = Color.green;
+
+        }
+        else if(url.Contains("http://" +authM.ipAddress+":3000/notes"))
                 {
+                //notelist
                     var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
                     notesManager.ToConsole(notes.data);
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    break;
+                    
                 }
-            case "http://localhost:3000/notes/byproject/:project_id":
+            else if (url.Contains("http://" +authM.ipAddress+":3000/notes/byproject/:project_id"))
                 {
+                //notelist by project
                     var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
                     notesManager.ToConsole(notes.data);
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    break;
+                    
                 }
-            case "http://localhost:3000/users":
+
+            else if (url.Contains("http://" +authM.ipAddress+":3000/projects"))
                 {
-                    //Debug.Log(json);
-                    if(authM==null)
-                        authM= GameObject.Find("AuthManager").GetComponent<authManager>();
-                    authM.Auth(json);
-                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    break;
-                }
-            case "http://localhost:3000/projects":
-                {
+                //list of layers with projects
                     var projects = JsonConvert.DeserializeObject<ProjectRoot>(json);
                     //list these, string on gO, klick andturn that to blocks
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    break;
+                    
                 }
-            case "http://localhost:3000/projects/byname/Demo":
+            
+            else if (url.Contains("http://" + authM.ipAddress + ":3000/users"))
                 {
-                    if (build == null)
-                        build = GameObject.Find("Building").GetComponent<Build>();
-                    var projects = JsonConvert.DeserializeObject<ProjectRoot>(json);
-                    build.ToConsole(projects.data);
+                //user list
+                    if (authM == null)
+                        authM = GameObject.Find("AuthManager").GetComponent<authManager>();
+                    authM.Auth(json);
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    break;
+                    
                 }
-            default:
+            else if (url.Contains("http://" +authM.ipAddress+":3000/notes/:"))
                 {
-                   if(url.Contains("http://localhost:3000/notes/:"))
-                    {
-                        commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                        break;
-                    }
-                    if (url.Contains("http://localhost:3000/projects/:"))
-                    {
-                        commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                        break; 
-                    }
-                    else
-                    {
-                        commCube.GetComponent<MeshRenderer>().material.color = Color.black;
-                        Debug.Log("Couldn't find type: " + url);
-                        break;
-                    }
-                   
+                //note by id
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
+                    
                 }
-
-        }
-
-
-
-
-
+            else if (url.Contains("http://" +authM.ipAddress+":3000/projects/:"))
+                {
+                //project layer by id
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
+                    
+                }
+            else
+                {
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.black;
+                    Debug.Log("Couldn't find type: " + url);
+                    
+                }
     }
 
 

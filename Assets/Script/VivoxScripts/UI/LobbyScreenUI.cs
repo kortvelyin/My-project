@@ -4,6 +4,7 @@ using Unity.Services.Vivox;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class LobbyScreenUI : MonoBehaviour
 {
@@ -12,13 +13,19 @@ public class LobbyScreenUI : MonoBehaviour
     public GameObject ConnectionIndicatorDot;
     public GameObject ConnectionIndicatorText;
     LoginScreenUI loginScreen;
+    private float _nextPosUpdate;
+    LayerLoader loaderSc;
+    Build buildSc;
 
     EventSystem m_EventSystem;
     Image m_ConnectionIndicatorDotImage;
     Text m_ConnectionIndicatorDotText;
+    bool JoinedChannel=false;
 
     void Start()
     {
+        loaderSc = GameObject.Find("Building").GetComponent<LayerLoader>();
+        buildSc = GameObject.Find("Building").GetComponent<Build>();
         loginScreen = GameObject.Find("LoginScreenUI").GetComponent<LoginScreenUI>();
         m_EventSystem = EventSystem.current;
         if (!m_EventSystem)
@@ -45,14 +52,30 @@ public class LobbyScreenUI : MonoBehaviour
         m_ConnectionIndicatorDotImage.color = Color.green;
         m_ConnectionIndicatorDotText.text = "Connected";
 
+        _nextPosUpdate = Time.time;
         LogoutButton.onClick.AddListener(() => { LogoutOfVivoxServiceAsync(); });
         LobbyScreen.SetActive(true);
          JoinLobbyChannel();
         LogoutButton.interactable = true;
         m_EventSystem.SetSelectedGameObject(LogoutButton.gameObject, null);
         // Make sure the UI is in a reset/off state from the start.
+        //loaderSc.SaveBlocks("showroom");
         OnUserLoggedOut();
+        
     }
+
+ /*   void Update()
+    {
+       if(VivoxService.Instance.IsLoggedIn)
+       {
+            Debug.Log("Vivox logged in");
+        if (Time.time > _nextPosUpdate)
+        {
+            VivoxService.Instance.Set3DPosition(Camera.main.gameObject, VivoxVoiceManager.LobbyChannelName);
+            _nextPosUpdate += 0.5f; // Only update after 0.3 or more seconds
+        }
+       }
+    }*/
 
     void OnDestroy()
     {
@@ -68,6 +91,8 @@ public class LobbyScreenUI : MonoBehaviour
     Task JoinLobbyChannel()
     {
         return VivoxService.Instance.JoinGroupChannelAsync(VivoxVoiceManager.LobbyChannelName, ChatCapability.TextAndAudio);
+        //Channel3DProperties props = new Channel3DProperties();
+        //return VivoxService.Instance.JoinPositionalChannelAsync(VivoxVoiceManager.LobbyChannelName, ChatCapability.TextAndAudio, props);
     }
 
     async void LogoutOfVivoxServiceAsync()
@@ -92,6 +117,8 @@ public class LobbyScreenUI : MonoBehaviour
     {
         Debug.Log("USER LOGGED OUT");
         LogoutButton.gameObject.SetActive(false);
+
+        
         //JoinLobbyChannel();
         //loginScreen.LoginToVivoxService();
         // LobbyScreen.SetActive(false);

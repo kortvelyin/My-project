@@ -35,6 +35,7 @@ public class Build : MonoBehaviour
     [HideInInspector]
     public GameObject selectedGo;
     private GameObject hoverGo;
+    private bool beginning=true;
 
 
 
@@ -48,7 +49,9 @@ public class Build : MonoBehaviour
         
         notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
 
-
+        
+            GetLayerListByName();
+        
     }
 
     // Update is called once per frame
@@ -103,8 +106,21 @@ public class Build : MonoBehaviour
                     if(notesManager.gOname)
                     notesManager.gOname.GetComponentInChildren<TMP_Text>().text= selectedGo.transform.gameObject.name;
                   
-                    //pos
-                    //put le notes in nmanasger
+                   
+                }
+                else
+                {
+                    if (loaderSc.isInColorMode)
+                    {
+                        if(selectedGo.GetComponent<Changes>())
+                        {
+                            selectedGo.GetComponent<Changes>().ChangeColor();
+                        }
+                        else
+                        {
+                            selectedGo.AddComponent<Changes>().ChangeColor();
+                        }
+                    }
                 }
             }
         }
@@ -125,7 +141,7 @@ public class Build : MonoBehaviour
 
     public void GetLayerListByName()
     {
-        StartCoroutine(contactService.GetRequest("http://localhost:3000/projects/byname/Demo"));///+projectNameInput.text));
+        StartCoroutine(contactService.GetRequest("http://"+authMSc.ipAddress+":3000/projects/byname/Demo"));///+projectNameInput.text));
         
     }
 
@@ -134,9 +150,14 @@ public class Build : MonoBehaviour
         
         foreach (var layer in layers)
         {
+           
             Debug.Log("Layers: "+layer.layername);
             var nN = Instantiate(listItem, savedContent.transform);
-           
+            if(layer.layername== "showroom")
+            {
+                Debug.Log("showroom found: " + layer.layername);
+                LoadingLayer(layer.layername, layer.model, nN);
+            }
             nN.transform.GetComponentInChildren<TMP_Text>().text = layer.layername;
             nN.gameObject.name = layer.model;
             //nN.gameObject.AddComponent<Button>();
@@ -148,13 +169,19 @@ public class Build : MonoBehaviour
 
     public void LoadingLayer(string layerName, string layerModel, Button button)
     {
-
-        if(button.transform.GetComponent<Image>().color==Color.white)
+        if (beginning)
         {
-            button.transform.GetComponent<Image>().color = Color.green;
-            //create tag
-            //or own dictionary?
-            //create basic tags
+            Debug.Log("in LoadingLayer layer");
+            loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
+            beginning = false;
+        }
+        else if (button.transform.GetComponent<Image>().color==Color.white)
+        {
+        button.transform.GetComponent<Image>().color = Color.green;
+        //other options for tag replacement
+        //create tag
+        //or own dictionary?
+        //create basic tags
             if (DoesTagExist(layerName))
             {
                 loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
@@ -216,31 +243,11 @@ public class Build : MonoBehaviour
       
     }
 
-    /// blockUIOnInteractableSelection
-    //Enabling this option will block UI interaction when selecting interactables.
-    /// currentNearestValidTarget
-    /// hitClosestOnly
-    /// isSelectActive
-    /// rayEndPoint /rayEndTransform
-    /// GetValidTargets(List<IXRInteractable>)
-    /// OnSelectEntering(SelectEnterEventArgs)
-    /// TryGetCurrent3DRaycastHit(out RaycastHit)
-    /// TryGetHitInfo(out Vector3, out Vector3, out int, out bool)
-    /// Interface IXRSelectInteractor.hasSelection
-    /// OnSelectEntered(SelectEnterEventArgs)
-    /// selectActionTrigger
-    ///  QueryTriggerInteraction.collide
-    ///  
-    /// IXRSelectInteractable.isSelected
-    /// IsSelectableBy(IXRSelectInteractor)
-    /// 
-    /// 
-    /// 
-    /// <returns></returns>
+  
 
     public string GetProjectNameByID(string id)
     {
-        StartCoroutine(contactService.GetRequest("http://localhost:3000/projects/:"+id));///+projectNameInput.text));
+        StartCoroutine(contactService.GetRequest("http://"+authMSc.ipAddress+":3000/projects/:" + id));///+projectNameInput.text));
 
 
         return id;
