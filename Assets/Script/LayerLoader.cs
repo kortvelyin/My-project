@@ -89,13 +89,13 @@ public class LayerLoader : MonoBehaviour
         foreach (var layerItem in layerItemList)
         {
             LayerItem lItem = JsonUtility.FromJson<LayerItem>(layerItem);
-            Debug.Log(" item type: " + layerItem);
+           // Debug.Log(" item type: " + layerItem);
             for (int i = 0; i < prefabs.Count; i++)
             {
                 //Debug.Log(" prefabs[i].name: " + prefabs[i].name);
                 if (lItem.objectType.Contains(prefabs[i].name))
                 {
-                        Debug.Log("contains prefabs[i].name: " + prefabs[i].name);
+                       // Debug.Log("contains prefabs[i].name: " + prefabs[i].name);
                         item = Instantiate(prefabs[i]);
                     item.gameObject.tag = layerName;
                     item.name = lItem.objectType;
@@ -103,11 +103,11 @@ public class LayerLoader : MonoBehaviour
                     var transfromArray= JsonHelper.FromJson<String>(lItem.transform);
 
                     item.transform.position = JsonUtility.FromJson<Vector3>(transfromArray[0]);
-                    Debug.Log("pos: " + item.transform.position);
+                    //Debug.Log("pos: " + item.transform.position);
                     item.transform.rotation = JsonUtility.FromJson<Quaternion>(transfromArray[1]);
-                    Debug.Log("rot: " + item.transform.rotation);
+                    //Debug.Log("rot: " + item.transform.rotation);
                     item.transform.localScale = JsonUtility.FromJson<Vector3>(transfromArray[2]);
-                    Debug.Log("scale: " + item.transform.lossyScale);
+                   // Debug.Log("scale: " + item.transform.lossyScale);
                     item.AddComponent<Changes>().ogMaterial = item.GetComponent<Renderer>().material;
                     item.GetComponentInChildren<Renderer>().material.color = lItem.color;
                 }
@@ -203,7 +203,7 @@ public class LayerLoader : MonoBehaviour
         var upProjectItem = new Project
         {
             name = "Demo",
-            start = "2024",
+            start = System.DateTime.Today.ToString(),
             finish = "2024.07.04.",
             layername = layerName,
             model = doneModelArray

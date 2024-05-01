@@ -26,9 +26,19 @@ public class ContactService : MonoBehaviour
     //could be a double string list with url and function to call
     public void JsonToDB(string json, string url)
     {
+        if (authM == null)
+            authM = GameObject.Find("AuthManager").GetComponent<authManager>();
         Debug.Log("json to db: "+url);
-        
-            if (url.Contains("http://"+authM.ipAddress+":3000/notes/"))
+        if (url.Contains("http://" + authM.ipAddress + ":3000/notes/byproject/"))
+        {
+            Debug.Log("demo notes were found: ");
+            //notelist by project
+            var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
+            notesManager.ToConsole(notes.data);
+            commCube.GetComponent<MeshRenderer>().material.color = Color.green;
+
+        }
+        else if (url.Contains("http://"+authM.ipAddress+":3000/notes/"))
                 {
                     var notes = JsonConvert.DeserializeObject<Notes>(json);
                     //the update
@@ -54,16 +64,7 @@ public class ContactService : MonoBehaviour
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     
                 }
-            else if (url.Contains("http://" +authM.ipAddress+":3000/notes/byproject/"))
-                {
-            Debug.Log("demo notes were found: ");
-            //notelist by project
-            var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
-                    notesManager.ToConsole(notes.data);
-                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    
-                }
-
+           
             else if (url.Contains("http://" +authM.ipAddress+":3000/projects"))
                 {
                 //list of layers with projects
@@ -76,24 +77,13 @@ public class ContactService : MonoBehaviour
             else if (url.Contains("http://" + authM.ipAddress + ":3000/users"))
                 {
                 //user list
-                    if (authM == null)
-                        authM = GameObject.Find("AuthManager").GetComponent<authManager>();
+                    
                     authM.Auth(json);
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     
                 }
-            else if (url.Contains("http://" +authM.ipAddress+":3000/notes/:"))
-                {
-                //note by id
-                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    
-                }
-            else if (url.Contains("http://" +authM.ipAddress+":3000/projects/:"))
-                {
-                //project layer by id
-                    commCube.GetComponent<MeshRenderer>().material.color = Color.green;
-                    
-                }
+            
+            
             else
                 {
                     commCube.GetComponent<MeshRenderer>().material.color = Color.black;

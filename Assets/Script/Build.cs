@@ -17,6 +17,7 @@ public class Build : MonoBehaviour
     public bool isInBuildMode = false; 
     public InputDevice inputDevice;
     bool triggerValue;
+    bool singlePress = true;
     public GameObject savedContent;
     public GameObject oneContent;
     public GameObject savedUI;
@@ -66,17 +67,22 @@ public class Build : MonoBehaviour
             UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand , leftHandDevices);
             if (leftHandDevices.Count > 0)
             {
-                Debug.Log("I found a left hand device.");
+                //Debug.Log("I found a left hand device.");
                 UnityEngine.XR.InputDevice device = leftHandDevices[0];
 
-                if (device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out triggerValue) && triggerValue)
+                InputHelpers.IsPressed(device, InputHelpers.Button.TriggerButton, out bool isPressed, -1f);
+                if (isPressed && singlePress)
                 {
-                    if (!device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out triggerValue) && !triggerValue)
-                    {
-                        BuildBlocks();
-                        Debug.Log("Trigger button is released.");
-                    }
+                    BuildBlocks();
+                    Debug.Log("triggeris pressed");
+                    singlePress = false;
+                    // BuildBlocks();
 
+
+                }
+                if(!isPressed)
+                {
+                    singlePress= true;
                 }
             }
         } 
@@ -171,7 +177,7 @@ public class Build : MonoBehaviour
     {
         if (beginning)
         {
-            Debug.Log("in LoadingLayer layer");
+            //Debug.Log("in LoadingLayer layer");
             loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
             beginning = false;
         }
