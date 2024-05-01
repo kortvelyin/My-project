@@ -667,7 +667,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &2211762828763746950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,6 +708,8 @@ MonoBehaviour:
   saveB: {fileID: 0}
   colorGO: {fileID: 0}
   gOname: {fileID: 0}
+  gOpos: {fileID: 0}
+  layerNote: {fileID: 0}
   textNote: {fileID: 0}
   titleNote: {fileID: 0}
 --- !u!1 &6521687255360253365

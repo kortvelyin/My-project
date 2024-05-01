@@ -195,7 +195,7 @@ public class LayerLoader : MonoBehaviour
 
     public void LayerToServer(string layerName = "demo")
     {
-        layerName = "showroom";//authMSc.userData.name;
+        layerName = "Arnold A.";//authMSc.userData.name;
         var doneModelArray = SaveBlocks(layerName);
         Debug.Log("doneModelArray: " + doneModelArray);
         

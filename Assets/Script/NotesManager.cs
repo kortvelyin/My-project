@@ -17,6 +17,7 @@ using UnityEditor;
 //using UnityEditor.Experimental.GraphView;
 using static System.Net.Mime.MediaTypeNames;
 using System.Xml.Linq;
+using static UnityEditor.Experimental.GraphView.GraphView;
 //using UnityEngine.UIElements;
 
 public struct TableTypes
@@ -77,7 +78,7 @@ public class NotesManager : MonoBehaviour
 
 
      
-    public void ToConsole(List<Notes> notes)
+    public void ToConsole(List<Notes> notes) //list out notes
     {
         Debug.Log("Notes: " + notes.ToString());
         foreach(var note in notes)
@@ -85,6 +86,13 @@ public class NotesManager : MonoBehaviour
             var nN= Instantiate(savedNotePrefab,savedContext.transform);
             Debug.Log("1"+ note.ToString());
             nN.transform.GetComponentInChildren<TMP_Text>().text = note.ToString();
+            nN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
+            
+            var lN= Instantiate(layerNote);//make the pop ups of notes
+            lN.tag = "Note";
+            lN.transform.position=JsonConvert.DeserializeObject<Transform>(note.position).position;
+            lN.transform.rotation = JsonConvert.DeserializeObject<Transform>(note.position).rotation;
+            lN.AddComponent<Button>().onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note))); ;
             //nN.onClick.AddListener(() => OnGetNotesbyID(note.));//get the id
             //nN.gameObject.name = note.ID;
             //ToConsole(note.ToString());
@@ -220,6 +228,11 @@ public class NotesManager : MonoBehaviour
             for (var i = savedContext.transform.childCount - 1; i >= 0; i--)
             {
                 UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
+            }
+            GameObject[] blocks = GameObject.FindGameObjectsWithTag("Note");
+            foreach (var block in blocks)
+            {
+                Destroy(block.gameObject);
             }
         }
         else

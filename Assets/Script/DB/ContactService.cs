@@ -37,7 +37,7 @@ public class ContactService : MonoBehaviour
                 }
         else if (url=="http://" + authM.ipAddress + ":3000/projects/byname/Demo")
         {
-            Debug.Log("demo was found: ");
+            Debug.Log("demo project was found: ");
             //layers for the Demo project
             if (build == null)
                 build = GameObject.Find("Building").GetComponent<Build>();
@@ -54,10 +54,11 @@ public class ContactService : MonoBehaviour
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     
                 }
-            else if (url.Contains("http://" +authM.ipAddress+":3000/notes/byproject/:project_id"))
+            else if (url.Contains("http://" +authM.ipAddress+":3000/notes/byproject/"))
                 {
-                //notelist by project
-                    var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
+            Debug.Log("demo notes were found: ");
+            //notelist by project
+            var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
                     notesManager.ToConsole(notes.data);
                     commCube.GetComponent<MeshRenderer>().material.color = Color.green;
                     
