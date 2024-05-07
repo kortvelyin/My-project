@@ -594,7 +594,6 @@ GameObject:
   - component: {fileID: 2107202709769948040}
   - component: {fileID: 3444974067221622484}
   - component: {fileID: 2211762828763746950}
-  - component: {fileID: 5797779352002512526}
   m_Layer: 5
   m_Name: LayerNote
   m_TagString: Untagged
@@ -610,7 +609,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4836395389595965267}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -18.3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -619,7 +618,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: -368.489, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 881, y: 345.78854}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 456, y: 698}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &2107202709769948040
@@ -667,7 +666,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &2211762828763746950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -687,31 +686,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RaycastTriggerInteraction: 1
---- !u!114 &5797779352002512526
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4836395389595965267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a3b131f2893e7f498d25f0f6b2701be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  headCamera: {fileID: 0}
-  newNote: {fileID: 0}
-  savedNotes: {fileID: 0}
-  savedNotePrefab: {fileID: 1302453097221575638, guid: e75d388cd17b8394c89bc4e9e443052d, type: 3}
-  savedContext: {fileID: 0}
-  oneContext: {fileID: 0}
-  saveB: {fileID: 0}
-  colorGO: {fileID: 0}
-  gOname: {fileID: 0}
-  gOpos: {fileID: 0}
-  layerNote: {fileID: 0}
-  textNote: {fileID: 0}
-  titleNote: {fileID: 0}
 --- !u!1 &6521687255360253365
 GameObject:
   m_ObjectHideFlags: 0

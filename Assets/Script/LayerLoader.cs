@@ -9,9 +9,8 @@ using UnityEngine.Networking;
 using TMPro;
 using UnityEngine.UI;
 using Newtonsoft.Json;
-using Palmmedia.ReportGenerator.Core.Common;
+
 using Newtonsoft.Json.Serialization;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 [Serializable]
 public class LayerItem
@@ -31,6 +30,7 @@ public class LayerLoader : MonoBehaviour
     authManager authMSc;
     Build buildSc;
     public bool isInColorMode;
+    public TMP_Text layerTitleText;
 
     //url is a different thing, its an assetbundle, and a url instead of LayerItem
 
@@ -195,7 +195,7 @@ public class LayerLoader : MonoBehaviour
 
     public void LayerToServer(string layerName = "demo")
     {
-        layerName = "Arnold A.";//authMSc.userData.name;
+        layerName = layerTitleText.text;//"Arnold A.";//authMSc.userData.name;
         var doneModelArray = SaveBlocks(layerName);
         Debug.Log("doneModelArray: " + doneModelArray);
         

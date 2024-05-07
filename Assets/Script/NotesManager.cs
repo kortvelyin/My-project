@@ -17,7 +17,7 @@ using UnityEditor;
 //using UnityEditor.Experimental.GraphView;
 using static System.Net.Mime.MediaTypeNames;
 using System.Xml.Linq;
-using static UnityEditor.Experimental.GraphView.GraphView;
+
 //using UnityEngine.UIElements;
 
 public struct TableTypes
@@ -90,8 +90,14 @@ public class NotesManager : MonoBehaviour
             
             var lN= Instantiate(layerNote);//make the pop ups of notes
             lN.tag = "Note";
+            if((note.position).Contains("Transform"))
+            {
             lN.transform.position=JsonConvert.DeserializeObject<Transform>(note.position).position;
             lN.transform.rotation = JsonConvert.DeserializeObject<Transform>(note.position).rotation;
+            }
+            else
+                lN.transform.position=Camera.main.transform.position;
+            
             lN.AddComponent<Button>().onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note))); ;
             //nN.onClick.AddListener(() => OnGetNotesbyID(note.));//get the id
             //nN.gameObject.name = note.ID;
@@ -218,13 +224,13 @@ public class NotesManager : MonoBehaviour
         {
             savedNotes.SetActive(false);
             if (!saveB.gameObject.activeSelf)
-            { savedNotes.transform.Find("Save").gameObject.SetActive(true); }
+            { saveB.gameObject.SetActive(true); }
             newNote.SetActive(true);
             gOname = Instantiate(savedNotePrefab, oneContext.transform);
             gOpos = Instantiate(savedNotePrefab, oneContext.transform);
             gOname.transform.GetComponentInChildren<TMP_Text>().text = "Select Object";
             gOpos.transform.GetComponentInChildren<TMP_Text>().text = "Select Object";
-            text.text = "List";
+            //text.text = "List";
             for (var i = savedContext.transform.childCount - 1; i >= 0; i--)
             {
                 UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
@@ -239,7 +245,8 @@ public class NotesManager : MonoBehaviour
         { newNote.SetActive(false);
         savedNotes.SetActive(true);
             OnGetNoteListbyProjectID("30");
-            text.text = "New";
+            
+            //text.text = "New";
         }
     }
 
@@ -269,7 +276,7 @@ public class NotesManager : MonoBehaviour
         newNote.SetActive(true);
         saveB.gameObject.SetActive(false);
         savedNotes.SetActive(false) ;
-
+        
         var oldNote = JsonConvert.DeserializeObject<Notes>(jnote);
         /*
              //Id= oldNote.Id,
@@ -281,6 +288,7 @@ public class NotesManager : MonoBehaviour
              position = oldNote.position
 
          */
+
         titleNote.text=oldNote.title;
         textNote.text = oldNote.text;
         var user = Instantiate(savedNotePrefab,oneContext.transform);

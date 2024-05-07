@@ -19,10 +19,10 @@ public class Build : MonoBehaviour
     bool triggerValue;
     bool singlePress = true;
     public GameObject savedContent;
-    public GameObject oneContent;
+    
     public GameObject savedUI;
     public GameObject listUI;
-    public TMP_Text layerTitleText;
+    
     public XRRayInteractor interactor;
     public Button listItem;
     LayerLoader loaderSc;
@@ -36,7 +36,7 @@ public class Build : MonoBehaviour
     [HideInInspector]
     public GameObject selectedGo;
     private GameObject hoverGo;
-    private bool beginning=true;
+    
 
 
 
@@ -51,7 +51,6 @@ public class Build : MonoBehaviour
         notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
 
         
-            GetLayerListByName();
         
     }
 
@@ -88,9 +87,9 @@ public class Build : MonoBehaviour
         } 
         else if (!isInBuildMode && interactor.TryGetCurrent3DRaycastHit(out intHit))
         {
-            if (selectedGo != intHit.transform.gameObject)
+            if (selectedGo.gameObject != intHit.transform.gameObject)
             {
-                if (hoverGo != intHit.transform.gameObject)
+                if (hoverGo != intHit.transform.gameObject && intHit.transform.gameObject.GetComponent<MeshRenderer>())
                 {
                     if(hoverGo != null)
                     hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
@@ -103,7 +102,7 @@ public class Build : MonoBehaviour
             
             if (interactor.isSelectActive)
             {
-                if(selectedGo!= intHit.transform.gameObject)
+                if(selectedGo.gameObject!= intHit.transform.gameObject)
                 {
                    if( selectedGo != null)
                     { selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f); }
@@ -159,15 +158,16 @@ public class Build : MonoBehaviour
            
             Debug.Log("Layers: "+layer.layername);
             var nN = Instantiate(listItem, savedContent.transform);
-            if(layer.layername== "showroom")
-            {
-                Debug.Log("showroom found: " + layer.layername);
-                LoadingLayer(layer.layername, layer.model, nN);
-            }
-            nN.transform.GetComponentInChildren<TMP_Text>().text = layer.layername;
+           
+            nN.transform.GetComponentInChildren<TMP_Text>().text = layer.layername+" " +layer.start;
             nN.gameObject.name = layer.model;
             //nN.gameObject.AddComponent<Button>();
-            nN.onClick.AddListener(() => LoadingLayer(layer.layername, layer.model, nN));
+            nN.gameObject.AddComponent<LoadLayer>().data = layer.model;
+            
+            nN.gameObject.GetComponent<LoadLayer>().data2 = layer.layername;
+            Debug.Log("nN layername: " + nN.gameObject.GetComponent<LoadLayer>().data2);
+            nN.gameObject.GetComponent<LoadLayer>().btn = nN;
+            nN.onClick.AddListener(() => nN.gameObject.GetComponent<LoadLayer>().Loading());
             //ToConsole(note.ToString());
         }
     }
@@ -175,21 +175,18 @@ public class Build : MonoBehaviour
 
     public void LoadingLayer(string layerName, string layerModel, Button button)
     {
-        if (beginning)
-        {
-            //Debug.Log("in LoadingLayer layer");
-            loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
-            beginning = false;
-        }
-        else if (button.transform.GetComponent<Image>().color==Color.white)
+            Debug.Log("LayerName: "+layerName+" Model: "+layerModel+" Button: "+button.name);
+        if (button.transform.GetComponent<Image>().color==Color.white)
         {
         button.transform.GetComponent<Image>().color = Color.green;
-        //other options for tag replacement
-        //create tag
-        //or own dictionary?
-        //create basic tags
+            //other options for tag replacement
+            //create tag
+            //or own dictionary?
+            //create basic tags
+            
             if (DoesTagExist(layerName))
             {
+                Debug.Log("IN TAG");
                 loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
                 
             }
