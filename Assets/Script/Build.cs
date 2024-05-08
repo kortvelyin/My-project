@@ -158,14 +158,14 @@ public class Build : MonoBehaviour
            
             Debug.Log("Layers: "+layer.layername);
             var nN = Instantiate(listItem, savedContent.transform);
-           
+           nN.transform.SetSiblingIndex(0);
             nN.transform.GetComponentInChildren<TMP_Text>().text = layer.layername+" " +layer.start;
             nN.gameObject.name = layer.model;
             //nN.gameObject.AddComponent<Button>();
             nN.gameObject.AddComponent<LoadLayer>().data = layer.model;
             
             nN.gameObject.GetComponent<LoadLayer>().data2 = layer.layername;
-            Debug.Log("nN layername: " + nN.gameObject.GetComponent<LoadLayer>().data2);
+            
             nN.gameObject.GetComponent<LoadLayer>().btn = nN;
             nN.onClick.AddListener(() => nN.gameObject.GetComponent<LoadLayer>().Loading());
             //ToConsole(note.ToString());

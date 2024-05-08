@@ -97,7 +97,8 @@ public class LayerLoader : MonoBehaviour
                 {
                        // Debug.Log("contains prefabs[i].name: " + prefabs[i].name);
                         item = Instantiate(prefabs[i]);
-                    item.gameObject.tag = layerName;
+                    item.tag = layerName;
+                    Debug.Log("item.tag: " + item.tag);
                     item.name = lItem.objectType;
                     item.transform.parent = parentObject.transform;
                     var transfromArray= JsonHelper.FromJson<String>(lItem.transform);
@@ -166,6 +167,7 @@ public class LayerLoader : MonoBehaviour
     public string SaveBlocks(string layerName = "none")
     {
         //layerName = authMSc.userData.name;
+        Debug.Log("LayerName: " + layerName);
         GameObject[] blocks = GameObject.FindGameObjectsWithTag(layerName);
         //List<string> upBlocks = new List<string>();//(new string[blocks.Length]);//new LayerItem[blocks.Length];
         string[] upBlocks = new string[blocks.Length];

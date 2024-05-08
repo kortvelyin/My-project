@@ -39,10 +39,11 @@ public class NotesManager : MonoBehaviour
     [HideInInspector]
     public Button gOname; //selected gameobject UI
     public Button gOpos;//note pos based on selected go UI
+    public Button gOuser;//note creator based on selected go UI
     public GameObject layerNote;
     
-    public TMP_Text textNote; //UI text
-    public TMP_Text titleNote;//UI text
+    public TMP_InputField textNote; //UI text
+    public TMP_InputField titleNote;//UI text
     private string baseUser_id;
     private TouchScreenKeyboard keyboard;
 
@@ -62,7 +63,9 @@ public class NotesManager : MonoBehaviour
         contactService = GameObject.Find("AuthManager").GetComponent<ContactService>();
         buildSc = GameObject.Find("Building").GetComponent<Build>();
         // OnGetNotesByProject();
+        gOuser = Instantiate(savedNotePrefab, oneContext.transform);
         gOname = Instantiate(savedNotePrefab, oneContext.transform);
+        gOpos = Instantiate(savedNotePrefab, oneContext.transform);
 
         //  AddNoteToDB();
         //OnGetNotesbyname();
@@ -84,6 +87,7 @@ public class NotesManager : MonoBehaviour
         foreach(var note in notes)
         {
             var nN= Instantiate(savedNotePrefab,savedContext.transform);
+            nN.transform.SetSiblingIndex(0);
             Debug.Log("1"+ note.ToString());
             nN.transform.GetComponentInChildren<TMP_Text>().text = note.ToString();
             nN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
@@ -126,11 +130,19 @@ public class NotesManager : MonoBehaviour
         keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.ASCIICapable);
     }
     public void AddNoteToDB()
-    {
-        Transform transform= gameObject.transform;
-        Vector3 vec3 = new Vector3(transform.position.x + (transform.position.x - buildSc.selectedGo.transform.position.x) / 2, transform.position.y, transform.position.z);
+    {    
         var goN = Instantiate(layerNote);
-        goN.transform.position = vec3;
+        Transform transform= gameObject.transform;
+        if (buildSc.selectedGo != null)
+        {
+            Vector3 vec3 = new Vector3(transform.position.x + (transform.position.x - buildSc.selectedGo.transform.position.x) / 2, transform.position.y, transform.position.z);
+            goN.transform.position = vec3;
+        }
+        else
+            goN.transform.position = transform.position;
+
+
+        
         goN.transform.rotation.SetLookRotation(Camera.main.transform.position);
         transform.SetPositionAndRotation(goN.transform.position, goN.transform.rotation);
         var jtrans = JsonUtility.ToJson(transform);
@@ -223,13 +235,15 @@ public class NotesManager : MonoBehaviour
         if(savedNotes.activeSelf)
         {
             savedNotes.SetActive(false);
-            if (!saveB.gameObject.activeSelf)
-            { saveB.gameObject.SetActive(true); }
+           
             newNote.SetActive(true);
-            gOname = Instantiate(savedNotePrefab, oneContext.transform);
-            gOpos = Instantiate(savedNotePrefab, oneContext.transform);
+           
+            //gOname = Instantiate(savedNotePrefab, oneContext.transform);
+            gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.userData.name;
             gOname.transform.GetComponentInChildren<TMP_Text>().text = "Select Object";
             gOpos.transform.GetComponentInChildren<TMP_Text>().text = "Select Object";
+            textNote.text = "";
+            titleNote.text = "";
             //text.text = "List";
             for (var i = savedContext.transform.childCount - 1; i >= 0; i--)
             {
@@ -274,7 +288,7 @@ public class NotesManager : MonoBehaviour
     public void ShowNote(string jnote)
     {
         newNote.SetActive(true);
-        saveB.gameObject.SetActive(false);
+        
         savedNotes.SetActive(false) ;
         
         var oldNote = JsonConvert.DeserializeObject<Notes>(jnote);
@@ -291,16 +305,14 @@ public class NotesManager : MonoBehaviour
 
         titleNote.text=oldNote.title;
         textNote.text = oldNote.text;
-        var user = Instantiate(savedNotePrefab,oneContext.transform);
-         gOname = Instantiate(savedNotePrefab, oneContext.transform);
-        var pos = Instantiate(savedNotePrefab, oneContext.transform);
+        
         //var project = Instantiate(savedNotePrefab, oneContext.transform);
 
         gOname.transform.GetComponentInChildren<TMP_Text>().text = oldNote.gobject;
-        pos.transform.GetComponentInChildren<TMP_Text>().text = oldNote.position;
+        gOpos.transform.GetComponentInChildren<TMP_Text>().text = oldNote.position;
 
         //project.transform.GetComponentInChildren<TMP_Text>().text = oldNote.user_id;
-       user.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(oldNote.user_id));
+       gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(oldNote.user_id));
         //nN.onClick.AddListener(() => OnGetNotesbyID(note.));//get the id
         //nN.gameObject.name = note.ID;
         //ToConsole(note.ToString());
