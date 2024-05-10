@@ -111,6 +111,12 @@ public class LayerLoader : MonoBehaviour
                    // Debug.Log("scale: " + item.transform.lossyScale);
                     item.AddComponent<Changes>().ogMaterial = item.GetComponent<Renderer>().material;
                     item.GetComponentInChildren<Renderer>().material.color = lItem.color;
+                    if (lItem.color == Color.white)
+                    {
+                        Color changeA = item.GetComponentInChildren<Renderer>().material.color;
+                        changeA.a = 0.4f;
+                        item.GetComponentInChildren<Renderer>().material.color= changeA;
+                    }
                 }
             }
             

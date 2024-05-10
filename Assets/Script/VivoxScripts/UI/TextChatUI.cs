@@ -94,7 +94,7 @@ public class TextChatUI : MonoBehaviour
             var reversedMessages = historyMessages.Reverse();
             foreach (var historyMessage in reversedMessages)
             {
-                AddMessageToChat(historyMessage, true, scrollToBottom);
+               // AddMessageToChat(historyMessage, true, scrollToBottom);
             }
 
             // Update the oldest message ReceivedTime if it exists to help the next fetch get the next batch of history
@@ -208,7 +208,7 @@ public class TextChatUI : MonoBehaviour
 
     void OnChannelJoined(string channelName)
     {
-        FetchMessages = FetchHistory(true);
+        //FetchMessages = FetchHistory(true);
     }
 
     void OnChannelMessageReceived(VivoxMessage message)

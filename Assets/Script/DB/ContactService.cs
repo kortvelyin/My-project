@@ -126,7 +126,8 @@ public class ContactService : MonoBehaviour
             {
                 case UnityWebRequest.Result.ConnectionError:
                 case UnityWebRequest.Result.DataProcessingError:
-                    Debug.LogError(string.Format("Something went wrong: {0}", webRequest.error));
+                    Debug.Log(string.Format("Something went wrong: {0}", webRequest.error));
+                    commCube.GetComponent<MeshRenderer>().material.color = Color.red;
                     break;
                 case UnityWebRequest.Result.Success:
                     Debug.Log("In GetRequestt: " + webRequest.downloadHandler.text);

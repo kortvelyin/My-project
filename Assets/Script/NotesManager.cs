@@ -17,9 +17,15 @@ using UnityEditor;
 //using UnityEditor.Experimental.GraphView;
 using static System.Net.Mime.MediaTypeNames;
 using System.Xml.Linq;
+using System.Runtime.CompilerServices;
 
 //using UnityEngine.UIElements;
-
+/// <summary>
+/// Handling the Note creation, listing, communication with DB
+/// Everything that has to do with the notes. 
+/// Notes class--> Notes.cs
+/// NotesRoot class -->NotesRoot.cs (this is for the api list call)  
+/// </summary>
 public struct TableTypes
 {
     public string urlContains;
@@ -40,7 +46,7 @@ public class NotesManager : MonoBehaviour
     public Button gOname; //selected gameobject UI
     public Button gOpos;//note pos based on selected go UI
     public Button gOuser;//note creator based on selected go UI
-    public GameObject layerNote;
+    public Button layerNote; //Note pop ups 
     
     public TMP_InputField textNote; //UI text
     public TMP_InputField titleNote;//UI text
@@ -64,6 +70,7 @@ public class NotesManager : MonoBehaviour
         buildSc = GameObject.Find("Building").GetComponent<Build>();
         // OnGetNotesByProject();
         gOuser = Instantiate(savedNotePrefab, oneContext.transform);
+        gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.userData.name;
         gOname = Instantiate(savedNotePrefab, oneContext.transform);
         gOpos = Instantiate(savedNotePrefab, oneContext.transform);
 
@@ -86,23 +93,34 @@ public class NotesManager : MonoBehaviour
         Debug.Log("Notes: " + notes.ToString());
         foreach(var note in notes)
         {
-            var nN= Instantiate(savedNotePrefab,savedContext.transform);
+            
+
+            GameObject[] noteLayer = GameObject.FindGameObjectsWithTag("Note");
+            foreach(var noteItem in noteLayer)
+            {
+                Destroy(noteItem.gameObject);
+            }
+            var nN = Instantiate(savedNotePrefab, savedContext.transform);
             nN.transform.SetSiblingIndex(0);
-            Debug.Log("1"+ note.ToString());
-            nN.transform.GetComponentInChildren<TMP_Text>().text = note.ToString();
+            Debug.Log("1" + note.ToString());
+            nN.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(note.user_id)) + " " + note.title;
             nN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
             
+            //The pop ups of the notes as a layer throughout the bulding
             var lN= Instantiate(layerNote);//make the pop ups of notes
-            lN.tag = "Note";
-            if((note.position).Contains("Transform"))
-            {
-            lN.transform.position=JsonConvert.DeserializeObject<Transform>(note.position).position;
-            lN.transform.rotation = JsonConvert.DeserializeObject<Transform>(note.position).rotation;
-            }
-            else
-                lN.transform.position=Camera.main.transform.position;
             
-            lN.AddComponent<Button>().onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note))); ;
+            if ((note.position).Contains("Item"))
+            {   var trans = JsonHelper.FromJson<string>(note.position);
+                lN.tag = "Note";
+                lN.transform.GetChild(0).transform.Find("NoteTitle").GetComponent<TMP_Text>().text = note.title;
+                lN.transform.GetChild(0).transform.Find("Creator").GetComponent<TMP_Text>().text = "Creator: " + authSc.GetUserNameByID(Int32.Parse(note.user_id));
+                lN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
+                lN.transform.position= JsonConvert.DeserializeObject<Vector3>(trans[0]);
+            lN.transform.rotation = JsonConvert.DeserializeObject<Quaternion>(trans[1]);
+            }
+            
+            
+            
             //nN.onClick.AddListener(() => OnGetNotesbyID(note.));//get the id
             //nN.gameObject.name = note.ID;
             //ToConsole(note.ToString());
@@ -144,22 +162,27 @@ public class NotesManager : MonoBehaviour
 
         
         goN.transform.rotation.SetLookRotation(Camera.main.transform.position);
-        transform.SetPositionAndRotation(goN.transform.position, goN.transform.rotation);
-        var jtrans = JsonUtility.ToJson(transform);
+        
+        string[] trans=new String[2];
+        trans[0] = JsonUtility.ToJson(goN.transform.position);
+        trans[1]= JsonUtility.ToJson(goN.transform.rotation);
+        var jtrans = JsonHelper.ToJson(trans);
         Notes note = new()
         {
             user_id = authSc.userData.ID.ToString(),//AuthenticationService.Instance.PlayerId,
             title = titleNote.text,//+" Projectname" + System.DateTime.Now.ToString(),
             text = textNote.text,
-            gobject = gOname.gameObject.GetComponentInChildren<TMP_Text>().text,
+            gobject = gOname.transform.GetComponentInChildren<TMP_Text>().text,
             project_id = "30",
             
             position = jtrans//jsoned transform
         };
          var jnote = JsonUtility.ToJson(note);
-        goN.AddComponent<Button>().onClick.AddListener(() => ShowNote(jnote));
+        goN.onClick.AddListener(() => ShowNote(jnote));
         goN.tag = "Note";
-        
+        goN.transform.GetChild(0).transform.Find("NoteTitle").GetComponent<TMP_Text>().text = note.title;
+        goN.transform.GetChild(0).transform.Find("Creator").GetComponent<TMP_Text>().text = "Creator: "+ authSc.GetUserNameByID(Int32.Parse(note.user_id));
+
         StartCoroutine(contactService.PostData_Coroutine(jnote, "http://"+authSc.ipAddress+":3000/notes"));
         // int pk= contactService.AddNote(note);
 
@@ -249,11 +272,7 @@ public class NotesManager : MonoBehaviour
             {
                 UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
             }
-            GameObject[] blocks = GameObject.FindGameObjectsWithTag("Note");
-            foreach (var block in blocks)
-            {
-                Destroy(block.gameObject);
-            }
+           
         }
         else
         { newNote.SetActive(false);
@@ -309,10 +328,12 @@ public class NotesManager : MonoBehaviour
         //var project = Instantiate(savedNotePrefab, oneContext.transform);
 
         gOname.transform.GetComponentInChildren<TMP_Text>().text = oldNote.gobject;
-        gOpos.transform.GetComponentInChildren<TMP_Text>().text = oldNote.position;
+        var trans = JsonHelper.FromJson<string>(oldNote.position);
+        gOpos.transform.GetComponentInChildren<TMP_Text>().text = trans[0];
 
         //project.transform.GetComponentInChildren<TMP_Text>().text = oldNote.user_id;
-       gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(oldNote.user_id));
+        gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(oldNote.user_id));
+      //  Debug.Log("username: " + authSc.GetUserNameByID(Int32.Parse(oldNote.user_id)));
         //nN.onClick.AddListener(() => OnGetNotesbyID(note.));//get the id
         //nN.gameObject.name = note.ID;
         //ToConsole(note.ToString());

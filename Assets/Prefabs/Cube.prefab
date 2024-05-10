@@ -316,7 +316,7 @@ MonoBehaviour:
   m_TightenRotation: 0.1
   m_TrackScale: 1
   m_SmoothScale: 1
-  m_SmoothScaleAmount: 8
+  m_SmoothScaleAmount: 10.7
   m_TightenScale: 0.1
   m_ThrowOnDetach: 1
   m_ThrowSmoothingDuration: 0.25

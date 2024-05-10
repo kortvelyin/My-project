@@ -110,8 +110,8 @@ public class Build : MonoBehaviour
                     selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.cyan * 0.4f);
                     if(notesManager.gOname)
                     notesManager.gOname.GetComponentInChildren<TMP_Text>().text= selectedGo.transform.gameObject.name;
-                  
-                   
+                    notesManager.gOpos.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.position.ToString();
+
                 }
                 else
                 {
@@ -240,7 +240,7 @@ public class Build : MonoBehaviour
             {
                 
                var cube= Instantiate(buildingBlock, new Vector3(intHit.point.x, intHit.point.y+0.5f,intHit.point.z), Quaternion.identity,loaderSc.userParentObject.transform);
-                cube.tag=authMSc.userData.name;
+                cube.tag="Cube";
             }
         }
       

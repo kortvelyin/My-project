@@ -24,7 +24,7 @@ public class authManager : MonoBehaviour
     LoginScreenUI loginScreenUI;
     ContactService contactService;
     LayerLoader layerSc;
-
+    NotesManager notesManager;
 
     private string baseUser_id;
     public GameObject idOrigin;
@@ -35,6 +35,7 @@ public class authManager : MonoBehaviour
 
     async void Awake()
     {
+        notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
         layerSc = GameObject.Find("Building").GetComponent<LayerLoader>();
         contactService = GetComponent<ContactService>();
         loginScreenUI = GameObject.Find("LoginScreenUI").GetComponent<LoginScreenUI>();
@@ -63,7 +64,11 @@ public class authManager : MonoBehaviour
                 
                 userData = user;
                 Debug.Log("Creating UserID");
+
                 data.transform.Find("username").gameObject.GetComponent<TMP_Text>().text = user.name;
+               /* if(notesManager == null)
+                    notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
+                notesManager.gOuser.transform.GetComponentInChildren<TMP_Text>().text = user.name;*/
                 data.transform.Find("company").gameObject.GetComponent<TMP_Text>().text = user.company;
                 data.transform.Find("job").gameObject.GetComponent<TMP_Text>().text = user.job;
                 data.transform.Find("title").gameObject.GetComponent<TMP_Text>().text = user.title;
