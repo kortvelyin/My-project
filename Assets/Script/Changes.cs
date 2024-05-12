@@ -16,6 +16,7 @@ public class Changes : MonoBehaviour
     public Material ogMaterial;
     [HideInInspector]
     public Transform ogTransform;
+    Color changeA;
 
     // Start is called before the first frame update
     void Start()
@@ -42,12 +43,12 @@ public class Changes : MonoBehaviour
         else if (gameObject.GetComponent<Renderer>().material.color == Color.red)
         {
             gameObject.GetComponent<Renderer>().material.color = Color.white;
-            Color changeA = gameObject.GetComponent<Renderer>().material.color;
+            changeA = gameObject.GetComponent<Renderer>().material.color;
             changeA.a = 0.4f; //this is how you can change the alpha and then set it
             gameObject.GetComponent<Renderer>().material.color = changeA;
 
         }
-        else if (gameObject.GetComponent<Renderer>().material.color == Color.white)
+        else if (gameObject.GetComponent<Renderer>().material.color == changeA)
         {
             gameObject.GetComponent<Renderer>().material.color = ogColor;
         }

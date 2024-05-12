@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-//using SerializableCallback;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
-//using static UnityEditor.Experimental.GraphView.GraphView;
+
 
 public class Build : MonoBehaviour
 {
@@ -38,9 +37,16 @@ public class Build : MonoBehaviour
     private GameObject hoverGo;
     
 
-
-
-    // Start is called before the first frame update
+/// <summary>
+/// Handling all controller button press
+/// Spawning building blocks
+/// Changing color
+/// Choosing GameObject
+/// 
+/// Handling Layers UI
+/// Calling layer list
+/// Calling Loading Layer
+/// </summary>
     void Start()
     {
         loaderSc = GameObject.Find("Building").GetComponent<LayerLoader>();
@@ -239,7 +245,7 @@ public class Build : MonoBehaviour
             if (interactor.TryGetCurrent3DRaycastHit(out intHit))
             {
                 
-               var cube= Instantiate(buildingBlock, new Vector3(intHit.point.x, intHit.point.y+0.5f,intHit.point.z), Quaternion.identity,loaderSc.userParentObject.transform);
+               var cube= Instantiate(buildingBlock, intHit.point, Quaternion.identity,loaderSc.userParentObject.transform);
                 cube.tag="Cube";
             }
         }
