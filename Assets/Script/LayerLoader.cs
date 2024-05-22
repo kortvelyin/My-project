@@ -2,15 +2,29 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
-//using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Networking;
-//using static UnityEditor.Experimental.GraphView.GraphView;
 using TMPro;
 using UnityEngine.UI;
 using Newtonsoft.Json;
-
 using Newtonsoft.Json.Serialization;
+using Unity.VisualScripting;
+using UnityEngine.XR.Interaction.Toolkit;
+
+/// <summary>
+/// Main functions to the Build.cs
+/// Functions to convert layer json data to models
+/// and back
+/// LayerItem class
+/// LayerJsonToLayerBegin(string layerName, string layer)
+/// LayerInfoToLayer(string model, GameObject parentObject, string layerName)
+/// TransformStringFromData(Transform transform)
+/// GetAssetBundle(GameObject parent)
+///  SaveBlocks(string layerName = "Cube")
+///  LayerToServer(string layerName = "demo")
+///  ObjectColorModeToggle(Button button)
+/// </summary>
+
 
 [Serializable]
 public class LayerItem
@@ -32,7 +46,6 @@ public class LayerLoader : MonoBehaviour
     public bool isInColorMode;
     public TMP_Text layerTitleText;
 
-    //url is a different thing, its an assetbundle, and a url instead of LayerItem
 
     private void Start()
     {
@@ -46,9 +59,6 @@ public class LayerLoader : MonoBehaviour
 
     }
 
-    ////listprojects, string on gO, klick and turn that to blocks
-    ///list projects
-    //klicks projects, get item, call LayerJsonToLayerBegin(string layerName, string layer)
 
 
     public void LayerJsonToLayerBegin(string layerName, string layer)
@@ -72,7 +82,7 @@ public class LayerLoader : MonoBehaviour
         }
         else if (layer.Contains("htt"))
         {
-            StartCoroutine(GetAssetBundle(parentObject));
+            StartCoroutine(GetAssetBundle(parentObject,layer));
         }
         else
         {
@@ -143,9 +153,12 @@ public class LayerLoader : MonoBehaviour
 
         return JsonHelper.ToJson(transformArray);
     }
-    IEnumerator GetAssetBundle(GameObject parent)
+    IEnumerator GetAssetBundle(GameObject parent, string layer)
     {
-        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle("https://www.my-server.com/myData.unity3d");
+
+        var layerData = JsonConvert.DeserializeObject<Project>(layer);
+
+        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(layerData.model);
         yield return www.SendWebRequest();
 
         if (www.result != UnityWebRequest.Result.Success)
@@ -160,7 +173,8 @@ public class LayerLoader : MonoBehaviour
 
             foreach (var asset in loadAsset)
             {
-                Instantiate(asset, parent.transform);
+                var assetGo= Instantiate(asset, parent.transform);
+                assetGo.AddComponent<XRGrabInteractable>();
             }
 
         }
@@ -170,14 +184,11 @@ public class LayerLoader : MonoBehaviour
 
 
 
-    public string SaveBlocks(string layerName = "none")
+    public string SaveBlocks(string layerName = "Cube")
     {
-        //layerName = authMSc.userData.name;
         Debug.Log("LayerName: " + layerName);
         GameObject[] blocks = GameObject.FindGameObjectsWithTag(layerName);
-        //List<string> upBlocks = new List<string>();//(new string[blocks.Length]);//new LayerItem[blocks.Length];
         string[] upBlocks = new string[blocks.Length];
-        //int i = 0;
         
         for (int i = 0; i < blocks.Length; i++)
         {
@@ -207,7 +218,6 @@ public class LayerLoader : MonoBehaviour
         var doneModelArray = SaveBlocks(layerName);
         Debug.Log("doneModelArray: " + doneModelArray);
         
-        //var jlayer = JsonUtility.ToJson(doneModelArray);
         var upProjectItem = new Project
         {
             name = "Demo",

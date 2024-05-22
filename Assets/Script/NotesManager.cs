@@ -8,18 +8,13 @@ using Unity.Services.Authentication;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using System;
-//using UnityEditor.Experimental.GraphView;
 using System.Linq;
 using System.Net;
-//using static UnityEditor.Experimental.GraphView.GraphView;
 using UnityEditor;
-//using UnityEditor.SearchService;
-//using UnityEditor.Experimental.GraphView;
 using static System.Net.Mime.MediaTypeNames;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
 
-//using UnityEngine.UIElements;
 /// <summary>
 /// Handling the Note creation, listing, communication with DB
 /// Everything that has to do with the notes. 
@@ -51,7 +46,6 @@ public class NotesManager : MonoBehaviour
     public TMP_InputField textNote; //UI text
     public TMP_InputField titleNote;//UI text
     private string baseUser_id;
-    private TouchScreenKeyboard keyboard;
 
     //scripts
     LoginScreenUI loginScreenUI;
@@ -74,16 +68,12 @@ public class NotesManager : MonoBehaviour
         gOname = Instantiate(savedNotePrefab, oneContext.transform);
         gOpos = Instantiate(savedNotePrefab, oneContext.transform);
 
-        //  AddNoteToDB();
-        //OnGetNotesbyname();
     }
 
     // Update is called once per frame
     void Update()
     {
         
-       // transform.position= headCamera.transform.position+ new Vector3(headCamera.transform.forward.x, 0, headCamera.transform.forward.z).normalized/2;
-       // transform.LookAt(headCamera.transform.position);
     }
 
 
@@ -143,10 +133,7 @@ public class NotesManager : MonoBehaviour
     }*/
 
 
-    public void ShowKeyboard()
-    {
-        keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.ASCIICapable);
-    }
+  
     public void AddNoteToDB()
     {    
         var goN = Instantiate(layerNote);
@@ -172,7 +159,7 @@ public class NotesManager : MonoBehaviour
             user_id = authSc.userData.ID.ToString(),//AuthenticationService.Instance.PlayerId,
             title = titleNote.text,//+" Projectname" + System.DateTime.Now.ToString(),
             text = textNote.text,
-            gobject = gOname.transform.GetComponentInChildren<TMP_Text>().text,
+            gobject = gOname.GetComponentInChildren<TMP_Text>().text,
             project_id = "30",
             
             position = jtrans//jsoned transform
@@ -225,6 +212,7 @@ public class NotesManager : MonoBehaviour
 
     public void OnGetNoteListbyProjectID(string id)
     {
+        Debug.Log("GetProjectList() id");
         StartCoroutine(contactService.GetRequest("http://"+authSc.ipAddress+":3000/notes/byproject/" + id));
         //var notes = contactService.GetNotes();
         //ToConsole(notes);
@@ -279,7 +267,6 @@ public class NotesManager : MonoBehaviour
         savedNotes.SetActive(true);
             OnGetNoteListbyProjectID("30");
             
-            //text.text = "New";
         }
     }
 
@@ -299,9 +286,7 @@ public class NotesManager : MonoBehaviour
             position = oldNote.position
         };
 
-        //int pk = UpdateNote(note.id);
         return note;
-        //Debug.Log("Primary Key: "+pk);
     }
 
     public void ShowNote(string jnote)
@@ -311,16 +296,6 @@ public class NotesManager : MonoBehaviour
         savedNotes.SetActive(false) ;
         
         var oldNote = JsonConvert.DeserializeObject<Notes>(jnote);
-        /*
-             //Id= oldNote.Id,
-             user_id = oldNote.user_id,
-             title = "Projectname" + System.DateTime.Now.ToString(),
-             text = "just updated",
-             gobject = oldNote.gobject,
-             project_id = oldNote.project_id,
-             position = oldNote.position
-
-         */
 
         titleNote.text=oldNote.title;
         textNote.text = oldNote.text;
@@ -333,13 +308,6 @@ public class NotesManager : MonoBehaviour
 
         //project.transform.GetComponentInChildren<TMP_Text>().text = oldNote.user_id;
         gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(oldNote.user_id));
-      //  Debug.Log("username: " + authSc.GetUserNameByID(Int32.Parse(oldNote.user_id)));
-        //nN.onClick.AddListener(() => OnGetNotesbyID(note.));//get the id
-        //nN.gameObject.name = note.ID;
-        //ToConsole(note.ToString());
-        //int pk = UpdateNote(note.id);
-        //Debug.Log("1" + note.ToString())
-        //Debug.Log("Primary Key: "+pk);
     }
 
 }

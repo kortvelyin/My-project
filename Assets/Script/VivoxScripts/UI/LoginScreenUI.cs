@@ -11,7 +11,6 @@ using Unity.VisualScripting;
 using Unity.Services.Authentication;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
-//using UnityEditor.Experimental.GraphView;
 using System.Linq;
 using System.Net;
 using UnityEngine.Experimental.Playables;
@@ -26,7 +25,6 @@ public class LoginScreenUI : MonoBehaviour
     public GameObject lobbyScreenUI;
     public Button LoginButton;
     public TMP_InputField DisplayNameInput;
-    //public InputField DisplayNameInput;
     public GameObject LoginScreen;
      NotesManager nM;
      Build build;
@@ -39,32 +37,28 @@ public class LoginScreenUI : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("loginScreenUI is working");
         authM = GameObject.Find("AuthManager").GetComponent<authManager>();
         var  goodPlace = GameObject.Find("LoginScreenUI");
         if (this == goodPlace.GetComponent<LoginScreenUI>())
         {
-            //build = new Build();
-            // Destroy(NotesEmpty.GetComponent<LoginScreenUI>());
-
-            // nM= FindObjectOfType<NotesManager>();
             m_EventSystem = FindObjectOfType<EventSystem>();
-        VivoxService.Instance.LoggedIn += OnUserLoggedIn;
+            Debug.Log("loginScreenUI before vivox");
+            VivoxService.Instance.LoggedIn += OnUserLoggedIn;
         VivoxService.Instance.LoggedOut += OnUserLoggedOut;
 
-#if !(UNITY_STANDALONE || UNITY_IOS || UNITY_ANDROID)
-        DisplayNameInput.interactable = false;
-#else
-        
-       DisplayNameInput.onEndEdit.AddListener((string text) => { LoginToVivoxService(); });
-#endif
-        LoginButton.onClick.AddListener(() => { LoginToVivoxService(); });
+            Debug.Log("loginScreenUI after vivox");
 
-        
-        var systInfoDeviceName = String.IsNullOrWhiteSpace(SystemInfo.deviceName) == false ? SystemInfo.deviceName : Environment.MachineName;
+          //  DisplayNameInput.onEndEdit.AddListener((string text) => { LoginToVivoxService(); });
+
+      //  LoginButton.onClick.AddListener(() => { LoginToVivoxService(); });
+
+           
+            var systInfoDeviceName = String.IsNullOrWhiteSpace(SystemInfo.deviceName) == false ? SystemInfo.deviceName : Environment.MachineName;
             DisplayNameInput.text = "Arnold A.";//Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
            // DisplayNameInput.text = Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
 
-           // authM.GetUsers();
+          // authM.GetUsers();
             OnUserLoggedOut();
         }
             

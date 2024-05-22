@@ -56,7 +56,8 @@ public class Build : MonoBehaviour
         
         notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
 
-        
+        selectedGo = new GameObject();
+        hoverGo = new GameObject();
         
     }
 
@@ -93,27 +94,42 @@ public class Build : MonoBehaviour
         } 
         else if (!isInBuildMode && interactor.TryGetCurrent3DRaycastHit(out intHit))
         {
-            if (selectedGo.gameObject != intHit.transform.gameObject)
+           // Debug.Log("raycast hit in nonBUild");
+            if ( selectedGo != intHit.transform.gameObject)
             {
+               // Debug.Log("raycast hit in hover I");
                 if (hoverGo != intHit.transform.gameObject && intHit.transform.gameObject.GetComponent<MeshRenderer>())
                 {
-                    if(hoverGo != null)
+                   // Debug.Log("raycast hit in hover II");
+                    if (hoverGo.GetComponent<MeshRenderer>())
+                    {hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
                     hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
-
+ }
+                    
                     hoverGo = intHit.transform.gameObject;
-                    hoverGo.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
-                    hoverGo.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.3f);
+                    hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                    hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.3f);
                 }
             }
             
             if (interactor.isSelectActive)
             {
-                if(selectedGo.gameObject!= intHit.transform.gameObject)
+                //Debug.Log("raycast hit in select");
+                if (selectedGo!= intHit.transform.gameObject)
                 {
-                   if( selectedGo != null)
-                    { selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f); }
-                    selectedGo = intHit.transform.gameObject;
-                    selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.cyan * 0.4f);
+                  //  Debug.Log("raycast hit in select I");
+                    if (selectedGo.GetComponent<MeshRenderer>())
+                     {      
+                     selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                     selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f); 
+                    }
+                     selectedGo = intHit.transform.gameObject;
+                    if(selectedGo.transform.gameObject.GetComponent<MeshRenderer>())
+                    {
+                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.cyan * 0.4f);
+                    }
+                    
                     if(notesManager.gOname)
                     notesManager.gOname.GetComponentInChildren<TMP_Text>().text= selectedGo.transform.gameObject.name;
                     notesManager.gOpos.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.position.ToString();
@@ -244,7 +260,7 @@ public class Build : MonoBehaviour
             
             if (interactor.TryGetCurrent3DRaycastHit(out intHit))
             {
-                
+                Debug.Log("Cube position: " + intHit.point.ToString());
                var cube= Instantiate(buildingBlock, intHit.point, Quaternion.identity,loaderSc.userParentObject.transform);
                 cube.tag="Cube";
             }

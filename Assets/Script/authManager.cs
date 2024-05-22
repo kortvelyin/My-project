@@ -49,7 +49,7 @@ public class authManager : MonoBehaviour
         data = loggedInID.transform.Find("DATA");
         SetupEvents();
         GetUsers();
-
+        Debug.Log("Get users was called");
         
     }
 
