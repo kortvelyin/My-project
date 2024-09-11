@@ -63,7 +63,7 @@ public class LayerLoader : MonoBehaviour
 
     public void LayerJsonToLayerBegin(string layerName, string layer)
     {
-        Debug.Log("layer: "+layer);
+        //Debug.Log("layer: "+layer);
         var parentObject = new GameObject(layerName);
         parentObject.transform.parent = userParentObject.transform;
         if (layer.Contains("layeritem"))
@@ -75,9 +75,9 @@ public class LayerLoader : MonoBehaviour
         }
         else if(layer.Contains("Item"))//with jsonHelper
         {
-            Debug.Log("it is indeed full of items");
+            Debug.Log("it is indeed full of items: "+ layer);
             
-
+            if(layer.Contains("objectType"))
             LayerInfoToLayer(layer, parentObject, layerName);
         }
         else if (layer.Contains("htt"))
@@ -105,42 +105,33 @@ public class LayerLoader : MonoBehaviour
                 //Debug.Log(" prefabs[i].name: " + prefabs[i].name);
                 if (lItem.objectType.Contains(prefabs[i].name))
                 {
-                       // Debug.Log("contains prefabs[i].name: " + prefabs[i].name);
                         item = Instantiate(prefabs[i]);
                     item.tag = layerName;
-                    Debug.Log("item.tag: " + item.tag);
+                   
                     item.name = lItem.objectType;
                     item.transform.parent = parentObject.transform;
                     var transfromArray= JsonHelper.FromJson<String>(lItem.transform);
 
                     item.transform.position = JsonUtility.FromJson<Vector3>(transfromArray[0]);
-                    //Debug.Log("pos: " + item.transform.position);
                     item.transform.rotation = JsonUtility.FromJson<Quaternion>(transfromArray[1]);
-                    //Debug.Log("rot: " + item.transform.rotation);
                     item.transform.localScale = JsonUtility.FromJson<Vector3>(transfromArray[2]);
-                   // Debug.Log("scale: " + item.transform.lossyScale);
-                    item.AddComponent<Changes>().ogMaterial = item.GetComponent<Renderer>().material;
-                    item.GetComponentInChildren<Renderer>().material.color = lItem.color;
-                    if (lItem.color == Color.white)
+                    if (item.GetComponent<Renderer>())
+                        item.AddComponent<Changes>().ogMaterial = item.GetComponent<Renderer>().material;
+                    else if (item.GetComponentInChildren<Renderer>())
                     {
-                        Color changeA = item.GetComponentInChildren<Renderer>().material.color;
-                        changeA.a = 0.4f;
-                        item.GetComponentInChildren<Renderer>().material.color= changeA;
+                        item.transform.GetChild(1).AddComponent<Changes>().ogMaterial = item.transform.GetChild(1).GetComponent<Renderer>().material;
                     }
+                    item.GetComponentInChildren<Renderer>().material.color = lItem.color;
+                   
                 }
             }
             
         }
-
-  if(item == null) 
-            {
-               
-                contactService.commCube.GetComponent<Renderer>().material.color = Color.red;
-            Debug.Log("couldnt find match in layer recreation ");
-
-        }
-
-       
+                if(item == null) 
+                {
+                     contactService.commCube.GetComponent<Renderer>().material.color = Color.red;
+                     Debug.Log("couldnt find match in layer recreation ");
+                }
     }
 
 
@@ -188,34 +179,31 @@ public class LayerLoader : MonoBehaviour
     {
         Debug.Log("LayerName: " + layerName);
         GameObject[] blocks = GameObject.FindGameObjectsWithTag(layerName);
+        if (blocks.Length == 0)
+            return 0.ToString();
         string[] upBlocks = new string[blocks.Length];
         
         for (int i = 0; i < blocks.Length; i++)
         {
             var postLayerI = new LayerItem();
-
-            postLayerI.name = layerName; //tag?
+            postLayerI.name = layerName;
             postLayerI.objectType = blocks[i].name.Replace('/', '_');
-            
             postLayerI.transform = TransformStringFromData(blocks[i].transform);
             postLayerI.color = blocks[i].GetComponentInChildren<Renderer>().material.color;
-
             Destroy(blocks[i].gameObject);
             upBlocks[i]= JsonUtility.ToJson(postLayerI);
-            //Debug.Log("layeriteminpost: " + upBlocks[i]);
         }
         
         var postStrinsArr=JsonHelper.ToJson(upBlocks);
-        
-        Debug.Log("string jlist2: " + postStrinsArr);
-        
             return postStrinsArr;
     }
 
     public void LayerToServer(string layerName = "demo")
     {
-        layerName = layerTitleText.text;//"Arnold A.";//authMSc.userData.name;
+        layerName = layerTitleText.text;
         var doneModelArray = SaveBlocks(layerName);
+        if (doneModelArray == 0.ToString())
+            return;
         Debug.Log("doneModelArray: " + doneModelArray);
         
         var upProjectItem = new Project
@@ -235,6 +223,7 @@ public class LayerLoader : MonoBehaviour
 
     public void ObjectColorModeToggle(Button button)
     {
+        Debug.Log("isincolormode: "+isInColorMode.ToString());
         isInColorMode = !isInColorMode;
         if (isInColorMode)
         {

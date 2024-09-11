@@ -31,9 +31,10 @@ public class ContactService : MonoBehaviour
         Debug.Log("json to db: "+url);
         if (url.Contains("http://" + authM.ipAddress + ":3000/notes/byproject/"))
         {
-            Debug.Log("demo notes were found: ");
+            Debug.Log("demo notes were found: "+json);
             //notelist by project
             var notes = JsonConvert.DeserializeObject<NotesRoot>(json);
+
             notesManager.ToConsole(notes.data);
             commCube.GetComponent<MeshRenderer>().material.color = Color.green;
 
@@ -47,7 +48,7 @@ public class ContactService : MonoBehaviour
                 }
         else if (url=="http://" + authM.ipAddress + ":3000/projects/byname/Demo")
         {
-            Debug.Log("demo project was found: ");
+          
             //layers for the Demo project
             if (build == null)
                 build = GameObject.Find("Building").GetComponent<Build>();
@@ -97,7 +98,6 @@ public class ContactService : MonoBehaviour
     {
         Debug.Log("In post: "+json+" url: "+uri);
         commCube.GetComponent<MeshRenderer>().material.color = Color.blue;
-        //jnote= JsonUtility.ToJson(note);
         using (UnityWebRequest www = UnityWebRequest.Post(uri, json, "application/json"))
         {
             yield return www.SendWebRequest();
@@ -132,12 +132,7 @@ public class ContactService : MonoBehaviour
                 case UnityWebRequest.Result.Success:
                     Debug.Log("In GetRequestt: " + webRequest.downloadHandler.text);
                     JsonToDB(webRequest.downloadHandler.text, uri);
-
-                    
-                  
-
                     break;
-
             }
         }
     }

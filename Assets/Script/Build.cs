@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -15,7 +16,6 @@ public class Build : MonoBehaviour
     public Transform buildingBlock;
     public bool isInBuildMode = false; 
     public InputDevice inputDevice;
-    bool triggerValue;
     bool singlePress = true;
     public GameObject savedContent;
     
@@ -29,7 +29,6 @@ public class Build : MonoBehaviour
     NotesManager notesManager;
     ContactService contactService;
     authManager authMSc;
-    IXRSelectInteractable interActeble;
     RaycastHit intHit;
 
     [HideInInspector]
@@ -65,12 +64,12 @@ public class Build : MonoBehaviour
     void Update()
     {
 
-        
-        
+
+
         if (isInBuildMode)
         {
             var leftHandDevices = new List<UnityEngine.XR.InputDevice>();
-            UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand , leftHandDevices);
+            UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand, leftHandDevices);
             if (leftHandDevices.Count > 0)
             {
                 //Debug.Log("I found a left hand device.");
@@ -86,71 +85,85 @@ public class Build : MonoBehaviour
 
 
                 }
-                if(!isPressed)
+                if (!isPressed)
                 {
-                    singlePress= true;
+                    singlePress = true;
                 }
             }
-        } 
-        else if (!isInBuildMode && interactor.TryGetCurrent3DRaycastHit(out intHit))
+        }
+        else if (interactor.TryGetCurrent3DRaycastHit(out intHit))
         {
-           // Debug.Log("raycast hit in nonBUild");
-            if ( selectedGo != intHit.transform.gameObject)
+            if (!interactor.isSelectActive&&selectedGo != intHit.transform.gameObject)
             {
-               // Debug.Log("raycast hit in hover I");
+                // Debug.Log("raycast hit in hover I");
                 if (hoverGo != intHit.transform.gameObject && intHit.transform.gameObject.GetComponent<MeshRenderer>())
                 {
-                   // Debug.Log("raycast hit in hover II");
+                    // Debug.Log("raycast hit in hover II");
                     if (hoverGo.GetComponent<MeshRenderer>())
-                    {hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
-                    hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
- }
-                    
+                    {
+                        hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                        hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
+                    }
+
                     hoverGo = intHit.transform.gameObject;
                     hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
                     hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.3f);
                 }
             }
-            
             if (interactor.isSelectActive)
             {
-                //Debug.Log("raycast hit in select");
-                if (selectedGo!= intHit.transform.gameObject)
+                if (selectedGo != null || selectedGo != intHit.transform.gameObject)
                 {
-                  //  Debug.Log("raycast hit in select I");
                     if (selectedGo.GetComponent<MeshRenderer>())
-                     {      
-                     selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
-                     selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f); 
+                    {
+                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
                     }
-                     selectedGo = intHit.transform.gameObject;
-                    if(selectedGo.transform.gameObject.GetComponent<MeshRenderer>())
+                    selectedGo = intHit.transform.gameObject;
+                    if (selectedGo.transform.gameObject.GetComponent<MeshRenderer>())
                     {
                         selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
                         selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.cyan * 0.4f);
                     }
-                    
-                    if(notesManager.gOname)
-                    notesManager.gOname.GetComponentInChildren<TMP_Text>().text= selectedGo.transform.gameObject.name;
-                    notesManager.gOpos.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.position.ToString();
-
-                }
-                else
-                {
                     if (loaderSc.isInColorMode)
                     {
-                        if(selectedGo.GetComponent<Changes>())
+
+                        if ((selectedGo.GetComponent<Renderer>()))
                         {
-                            selectedGo.GetComponent<Changes>().ChangeColor();
+                            if (selectedGo.GetComponent<Changes>())
+                            {
+                                selectedGo.GetComponent<Changes>().ChangeColor();
+                            }
+                            else
+                            {
+                                selectedGo.AddComponent<Changes>().ChangeColor();
+                                selectedGo.GetComponentInChildren<Changes>().ChangeColor();
+                            }
                         }
                         else
                         {
-                            selectedGo.AddComponent<Changes>().ChangeColor();
+                            if ((selectedGo.GetComponentInChildren<Renderer>()))
+                            {
+                                if (selectedGo.GetComponentInChildren<Changes>())
+                                    selectedGo.GetComponentInChildren<Changes>().ChangeColor();
+                                else
+                                {
+                                    selectedGo.transform.GetChild(1).AddComponent<Changes>().ChangeColor();
+                                }
+                            }
+
                         }
                     }
+
+                    if (notesManager.gOname)
+                        notesManager.gOname.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.gameObject.name;
+                    notesManager.gOpos.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.position.ToString();
                 }
             }
+         
         }
+        
+       
     }
     
     public void OnLayerListDis()
@@ -177,20 +190,18 @@ public class Build : MonoBehaviour
         
         foreach (var layer in layers)
         {
-           
-            Debug.Log("Layers: "+layer.layername);
-            var nN = Instantiate(listItem, savedContent.transform);
-           nN.transform.SetSiblingIndex(0);
-            nN.transform.GetComponentInChildren<TMP_Text>().text = layer.layername+" " +layer.start;
-            nN.gameObject.name = layer.model;
-            //nN.gameObject.AddComponent<Button>();
-            nN.gameObject.AddComponent<LoadLayer>().data = layer.model;
-            
-            nN.gameObject.GetComponent<LoadLayer>().data2 = layer.layername;
-            
-            nN.gameObject.GetComponent<LoadLayer>().btn = nN;
-            nN.onClick.AddListener(() => nN.gameObject.GetComponent<LoadLayer>().Loading());
-            //ToConsole(note.ToString());
+            if (layer.model.Contains("objectType"))
+            {
+                Debug.Log("Layersmodel: "+layer.model);
+                var nN = Instantiate(listItem, savedContent.transform);
+                nN.transform.SetSiblingIndex(0);
+                nN.transform.GetComponentInChildren<TMP_Text>().text = layer.layername + " " + layer.start;
+                nN.gameObject.name = layer.model;
+                nN.gameObject.AddComponent<LoadLayer>().data = layer.model;
+                nN.gameObject.GetComponent<LoadLayer>().data2 = layer.layername;
+                nN.gameObject.GetComponent<LoadLayer>().btn = nN;
+                nN.onClick.AddListener(() => nN.gameObject.GetComponent<LoadLayer>().Loading());
+            }
         }
     }
 
@@ -201,22 +212,14 @@ public class Build : MonoBehaviour
         if (button.transform.GetComponent<Image>().color==Color.white)
         {
         button.transform.GetComponent<Image>().color = Color.green;
-            //other options for tag replacement
-            //create tag
-            //or own dictionary?
-            //create basic tags
-            
             if (DoesTagExist(layerName))
             {
-                Debug.Log("IN TAG");
                 loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
-                
             }
         }
         else
         {
             button.transform.GetComponent<Image>().color = Color.white;
-            //check for tag if tag doesnt exist, dont bother
             if (DoesTagExist(layerName))
             {
                 GameObject[] blocks = GameObject.FindGameObjectsWithTag(layerName);
@@ -224,6 +227,19 @@ public class Build : MonoBehaviour
                 {
                     Destroy(block.gameObject);
                 }
+            }
+        }
+    }
+
+    public void Clear()
+    {
+        string layerName = loaderSc.layerTitleText.text;
+        if (DoesTagExist(layerName))
+        {
+            GameObject[] blocks = GameObject.FindGameObjectsWithTag(layerName);
+            foreach (var block in blocks)
+            {
+                Destroy(block.gameObject);
             }
         }
     }
@@ -254,10 +270,8 @@ public class Build : MonoBehaviour
     }
     public void BuildBlocks()
     {
-      
         if (isInBuildMode)
         {
-            
             if (interactor.TryGetCurrent3DRaycastHit(out intHit))
             {
                 Debug.Log("Cube position: " + intHit.point.ToString());
@@ -265,7 +279,6 @@ public class Build : MonoBehaviour
                 cube.tag="Cube";
             }
         }
-      
     }
 
   

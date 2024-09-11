@@ -42,15 +42,10 @@ public class Changes : MonoBehaviour
         }
         else if (gameObject.GetComponent<Renderer>().material.color == Color.red)
         {
-            gameObject.GetComponent<Renderer>().material.color = Color.white;
-            changeA = gameObject.GetComponent<Renderer>().material.color;
-            changeA.a = 0.4f; //this is how you can change the alpha and then set it
-            gameObject.GetComponent<Renderer>().material.color = changeA;
+            
+            gameObject.GetComponent<Renderer>().material.color = ogColor;
 
         }
-        else if (gameObject.GetComponent<Renderer>().material.color == changeA)
-        {
-            gameObject.GetComponent<Renderer>().material.color = ogColor;
-        }
+       
     }
 }

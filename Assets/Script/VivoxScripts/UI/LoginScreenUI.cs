@@ -37,28 +37,15 @@ public class LoginScreenUI : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("loginScreenUI is working");
         authM = GameObject.Find("AuthManager").GetComponent<authManager>();
         var  goodPlace = GameObject.Find("LoginScreenUI");
         if (this == goodPlace.GetComponent<LoginScreenUI>())
         {
             m_EventSystem = FindObjectOfType<EventSystem>();
-            Debug.Log("loginScreenUI before vivox");
             VivoxService.Instance.LoggedIn += OnUserLoggedIn;
-        VivoxService.Instance.LoggedOut += OnUserLoggedOut;
-
-            Debug.Log("loginScreenUI after vivox");
-
-          //  DisplayNameInput.onEndEdit.AddListener((string text) => { LoginToVivoxService(); });
-
-      //  LoginButton.onClick.AddListener(() => { LoginToVivoxService(); });
-
-           
+            VivoxService.Instance.LoggedOut += OnUserLoggedOut;
             var systInfoDeviceName = String.IsNullOrWhiteSpace(SystemInfo.deviceName) == false ? SystemInfo.deviceName : Environment.MachineName;
-            DisplayNameInput.text = "Arnold A.";//Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
-           // DisplayNameInput.text = Environment.MachineName.Substring(0, Math.Min(k_DefaultMaxStringLength, Environment.MachineName.Length));
-
-          // authM.GetUsers();
+            DisplayNameInput.text = "Arnold A.";
             OnUserLoggedOut();
         }
             
@@ -172,7 +159,6 @@ public class LoginScreenUI : MonoBehaviour
 
     public void LoginToVivoxService()
     {
-         //VivoxService.Instance.InitializeAsync();
         m_EventSystem = FindObjectOfType<EventSystem>();
         VivoxService.Instance.LoggedIn += OnUserLoggedIn;
         VivoxService.Instance.LoggedOut += OnUserLoggedOut;
@@ -202,15 +188,10 @@ public class LoginScreenUI : MonoBehaviour
 
     async void LoginToVivox()
     {
-        Debug.Log("LoginToVivox() was called");
         LoginButton.interactable = false;
         if(authM==null)
             authM = GameObject.Find("AuthManager").GetComponent<authManager>();
-            //var correctedDisplayName = Regex.Replace(DisplayNameInput.text, "[^a-zA-Z0-9_-]", "");
-            DisplayNameInput.text = authM.userData.name; //correctedDisplayName.Substring(0, Math.Min(correctedDisplayName.Length, 30));
-        //DisplayNameInput.text = correctedDisplayName.Substring(0, Math.Min(correctedDisplayName.Length, 30));
-        Debug.Log("DisplayNameInput.text: " + DisplayNameInput.text);
-        Debug.Log("correctedDisplayName: " + Regex.Replace(DisplayNameInput.text, "[^a-zA-Z0-9_-]", ""));
+            DisplayNameInput.text = authM.userData.name; 
 
         if (string.IsNullOrEmpty(DisplayNameInput.text))
         {
@@ -224,13 +205,8 @@ public class LoginScreenUI : MonoBehaviour
             DisplayName = DisplayNameInput.text,
             ParticipantUpdateFrequency = ParticipantPropertyUpdateFrequency.FivePerSecond,
             EnableTTS = true
-    };
-      
-       // await VivoxService.Instance.InitializeAsync();
-       // await VivoxService.Instance.LoginAsync();
-        
+        };
         await VivoxService.Instance.LoginAsync(loginOptions);
-        
         lobbyScreenUI.SetActive(true);
     }
 
@@ -246,7 +222,6 @@ public class LoginScreenUI : MonoBehaviour
 
     void OnUserLoggedOut()
     {
-        //LoginToVivoxService();
         ShowLoginUI();
     }
 }

@@ -15,6 +15,8 @@ public class LoadLayer : MonoBehaviour
 
     public void Loading()
     {
+        Debug.Log(data+ "data2: "+data2);
+
         GameObject.Find("Building").GetComponent<Build>().LoadingLayer(data2,data, transform.gameObject.GetComponent<Button>());
     }
    

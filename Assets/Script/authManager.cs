@@ -61,14 +61,8 @@ public class authManager : MonoBehaviour
         {
             if ("Arnold A." == user.name)//(loginScreenUI.DisplayNameInput.text == user.name)
             {
-                
                 userData = user;
-                Debug.Log("Creating UserID");
-
                 data.transform.Find("username").gameObject.GetComponent<TMP_Text>().text = user.name;
-               /* if(notesManager == null)
-                    notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
-                notesManager.gOuser.transform.GetComponentInChildren<TMP_Text>().text = user.name;*/
                 data.transform.Find("company").gameObject.GetComponent<TMP_Text>().text = user.company;
                 data.transform.Find("job").gameObject.GetComponent<TMP_Text>().text = user.job;
                 data.transform.Find("title").gameObject.GetComponent<TMP_Text>().text = user.title;
@@ -85,11 +79,7 @@ public class authManager : MonoBehaviour
 
     public void GetUsers()
     {
-        // StartCoroutine(contactService.GetRequest("http://localhost:3000/users"));
-        //StartCoroutine(contactService.GetRequest("http://10.1.101.181:3000/users"));
-        //ipAddress = "10.1.101.181";
         string uri = "http://" + ipAddress + ":3000/users";
-        Debug.Log(uri);
         StartCoroutine(contactService.GetRequest(uri));
     }
 

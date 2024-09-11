@@ -80,10 +80,10 @@ public class NotesManager : MonoBehaviour
      
     public void ToConsole(List<Notes> notes) //list out notes
     {
-        Debug.Log("Notes: " + notes.ToString());
+        
         foreach(var note in notes)
         {
-            
+            Debug.Log("note: " + note.ToString());
 
             GameObject[] noteLayer = GameObject.FindGameObjectsWithTag("Note");
             foreach(var noteItem in noteLayer)
@@ -92,28 +92,25 @@ public class NotesManager : MonoBehaviour
             }
             var nN = Instantiate(savedNotePrefab, savedContext.transform);
             nN.transform.SetSiblingIndex(0);
-            Debug.Log("1" + note.ToString());
+            
             nN.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(note.user_id)) + " " + note.title;
             nN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
             
             //The pop ups of the notes as a layer throughout the bulding
-            var lN= Instantiate(layerNote);//make the pop ups of notes
             
-            if ((note.position).Contains("Item"))
-            {   var trans = JsonHelper.FromJson<string>(note.position);
+            
+            if (note.position!=null && (note.position).Contains("Item"))
+            {
+                var lN = Instantiate(layerNote);//make the pop ups of notes
+                var trans = JsonHelper.FromJson<string>(note.position);
                 lN.tag = "Note";
                 lN.transform.GetChild(0).transform.Find("NoteTitle").GetComponent<TMP_Text>().text = note.title;
                 lN.transform.GetChild(0).transform.Find("Creator").GetComponent<TMP_Text>().text = "Creator: " + authSc.GetUserNameByID(Int32.Parse(note.user_id));
                 lN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
                 lN.transform.position= JsonConvert.DeserializeObject<Vector3>(trans[0]);
-            lN.transform.rotation = JsonConvert.DeserializeObject<Quaternion>(trans[1]);
+                lN.transform.rotation = JsonConvert.DeserializeObject<Quaternion>(trans[1]);
             }
             
-            
-            
-            //nN.onClick.AddListener(() => OnGetNotesbyID(note.));//get the id
-            //nN.gameObject.name = note.ID;
-            //ToConsole(note.ToString());
         }
     }
 
@@ -125,12 +122,6 @@ public class NotesManager : MonoBehaviour
     {
         Debug.Log(msg);
     }
-
-  /*  public void CreateNotesDB()
-    {
-        contactService.CreateNotesTable();
-        Debug.Log("Notes Table Created");
-    }*/
 
 
   
@@ -156,20 +147,21 @@ public class NotesManager : MonoBehaviour
         var jtrans = JsonHelper.ToJson(trans);
         Notes note = new()
         {
-            user_id = authSc.userData.ID.ToString(),//AuthenticationService.Instance.PlayerId,
+            user_id = authSc.userData.ID.ToString(),
             title = titleNote.text,//+" Projectname" + System.DateTime.Now.ToString(),
             text = textNote.text,
             gobject = gOname.GetComponentInChildren<TMP_Text>().text,
-            project_id = "30",
             
-            position = jtrans//jsoned transform
+            project_id = "30",
+        position = jtrans//jsoned transform
         };
+        
          var jnote = JsonUtility.ToJson(note);
         goN.onClick.AddListener(() => ShowNote(jnote));
         goN.tag = "Note";
         goN.transform.GetChild(0).transform.Find("NoteTitle").GetComponent<TMP_Text>().text = note.title;
         goN.transform.GetChild(0).transform.Find("Creator").GetComponent<TMP_Text>().text = "Creator: "+ authSc.GetUserNameByID(Int32.Parse(note.user_id));
-
+        Debug.Log("goname jnote: " + jnote);
         StartCoroutine(contactService.PostData_Coroutine(jnote, "http://"+authSc.ipAddress+":3000/notes"));
         // int pk= contactService.AddNote(note);
 
@@ -198,24 +190,18 @@ public class NotesManager : MonoBehaviour
     public void OnGetNotesbyname()
     {
         StartCoroutine(contactService.GetRequest("http://"+authSc.ipAddress+":3000/notes"));
-        //var notes = contactService.GetNotes();
-        //ToConsole(notes);
     }
 
 
     public void OnGetOneNotebyID(string id)
     {
         StartCoroutine(contactService.GetRequest("http://"+authSc.ipAddress+":3000/notes/:" + id));
-        //var notes = contactService.GetNotes();
-        //ToConsole(notes);
     }
 
     public void OnGetNoteListbyProjectID(string id)
     {
         Debug.Log("GetProjectList() id");
         StartCoroutine(contactService.GetRequest("http://"+authSc.ipAddress+":3000/notes/byproject/" + id));
-        //var notes = contactService.GetNotes();
-        //ToConsole(notes);
     }
 
     public void GetProjectList()
@@ -294,19 +280,24 @@ public class NotesManager : MonoBehaviour
         newNote.SetActive(true);
         
         savedNotes.SetActive(false) ;
-        
-        var oldNote = JsonConvert.DeserializeObject<Notes>(jnote);
-
+        for (var i = savedContext.transform.childCount - 1; i >= 0; i--)
+        {
+            UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
+        }
+        Debug.Log("Note: "+jnote);
+        var oldNote = JsonConvert.DeserializeObject<NotesInRoot>(jnote);
         titleNote.text=oldNote.title;
         textNote.text = oldNote.text;
-        
-        //var project = Instantiate(savedNotePrefab, oneContext.transform);
-
         gOname.transform.GetComponentInChildren<TMP_Text>().text = oldNote.gobject;
-        var trans = JsonHelper.FromJson<string>(oldNote.position);
-        gOpos.transform.GetComponentInChildren<TMP_Text>().text = trans[0];
-
-        //project.transform.GetComponentInChildren<TMP_Text>().text = oldNote.user_id;
+        if(oldNote.position != null&& oldNote.position.Contains("Item"))
+        {
+            var trans = JsonHelper.FromJson<string>(oldNote.position);
+            gOpos.transform.GetComponentInChildren<TMP_Text>().text = trans[0];
+        }
+        else
+        {
+            gOpos.transform.GetComponentInChildren<TMP_Text>().text=new Vector3(0,0,0).ToString();
+        }
         gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(oldNote.user_id));
     }
 
