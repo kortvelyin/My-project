@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -21,7 +22,9 @@ public class Build : MonoBehaviour
     
     public GameObject savedUI;
     public GameObject listUI;
-    
+    public TMP_Text changeText;
+    public Color loadedButton;
+
     public XRRayInteractor interactor;
     public Button listItem;
     LayerLoader loaderSc;
@@ -30,33 +33,35 @@ public class Build : MonoBehaviour
     ContactService contactService;
     authManager authMSc;
     RaycastHit intHit;
+    public int openModelCount = 0;
 
     [HideInInspector]
-    public GameObject selectedGo;
-    private GameObject hoverGo;
-    
+    public GameObject selectedGo=null;
+    private GameObject hoverGo=null;
 
-/// <summary>
-/// Handling all controller button press
-/// Spawning building blocks
-/// Changing color
-/// Choosing GameObject
-/// 
-/// Handling Layers UI
-/// Calling layer list
-/// Calling Loading Layer
-/// </summary>
+
+    /// <summary>
+    /// Handling all controller button press
+    /// Spawning building blocks
+    /// Changing color
+    /// Choosing GameObject
+    /// 
+    /// Handling Layers UI
+    /// Calling layer list
+    /// Clearing LayerList
+    /// Calling Loading Layer
+    /// GetProjectNameByID
+    /// IDtoName
+    /// </summary>
     void Start()
     {
         loaderSc = GameObject.Find("Building").GetComponent<LayerLoader>();
         contactService = GameObject.Find("AuthManager").GetComponent<ContactService>();
-        //xRManager= GetComponent<XRInteractionManager>();
         authMSc = GameObject.Find("AuthManager").GetComponent<authManager>();
-        
         notesManager = GameObject.Find("NotesUIDocker").GetComponent<NotesManager>();
 
-        selectedGo = new GameObject();
-        hoverGo = new GameObject();
+        //selectedGo = new GameObject();
+        //hoverGo = new GameObject();
         
     }
 
@@ -81,9 +86,6 @@ public class Build : MonoBehaviour
                     BuildBlocks();
                     Debug.Log("triggeris pressed");
                     singlePress = false;
-                    // BuildBlocks();
-
-
                 }
                 if (!isPressed)
                 {
@@ -91,15 +93,16 @@ public class Build : MonoBehaviour
                 }
             }
         }
-        else if (interactor.TryGetCurrent3DRaycastHit(out intHit))
+        if (interactor.TryGetCurrent3DRaycastHit(out intHit))
         {
-            if (!interactor.isSelectActive&&selectedGo != intHit.transform.gameObject)
+            Debug.Log("intHit taken");
+            if (!interactor.isSelectActive && selectedGo != intHit.transform.gameObject)
             {
                 // Debug.Log("raycast hit in hover I");
                 if (hoverGo != intHit.transform.gameObject && intHit.transform.gameObject.GetComponent<MeshRenderer>())
                 {
                     // Debug.Log("raycast hit in hover II");
-                    if (hoverGo.GetComponent<MeshRenderer>())
+                    if (hoverGo!=null &&hoverGo.GetComponent<MeshRenderer>()!=null)
                     {
                         hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
                         hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
@@ -112,70 +115,61 @@ public class Build : MonoBehaviour
             }
             if (interactor.isSelectActive)
             {
-                if (selectedGo != null || selectedGo != intHit.transform.gameObject)
+                Debug.Log("interactor active");
+                if (selectedGo!=null&&selectedGo.GetComponentInChildren<MeshRenderer>())
                 {
-                    if (selectedGo.GetComponent<MeshRenderer>())
-                    {
-                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
-                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
-                    }
-                    selectedGo = intHit.transform.gameObject;
-                    if (selectedGo.transform.gameObject.GetComponent<MeshRenderer>())
-                    {
-                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
-                        selectedGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.cyan * 0.4f);
-                    }
-                    if (loaderSc.isInColorMode)
-                    {
-
-                        if ((selectedGo.GetComponent<Renderer>()))
-                        {
-                            if (selectedGo.GetComponent<Changes>())
-                            {
-                                selectedGo.GetComponent<Changes>().ChangeColor();
-                            }
-                            else
-                            {
-                                selectedGo.AddComponent<Changes>().ChangeColor();
-                                selectedGo.GetComponentInChildren<Changes>().ChangeColor();
-                            }
-                        }
-                        else
-                        {
-                            if ((selectedGo.GetComponentInChildren<Renderer>()))
-                            {
-                                if (selectedGo.GetComponentInChildren<Changes>())
-                                    selectedGo.GetComponentInChildren<Changes>().ChangeColor();
-                                else
-                                {
-                                    selectedGo.transform.GetChild(1).AddComponent<Changes>().ChangeColor();
-                                }
-                            }
-
-                        }
-                    }
-
-                    if (notesManager.gOname)
-                        notesManager.gOname.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.gameObject.name;
-                    notesManager.gOpos.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.position.ToString();
+                    selectedGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                    selectedGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
                 }
+                selectedGo = intHit.transform.gameObject;
+                if (selectedGo.transform.gameObject.GetComponentInChildren<MeshRenderer>())
+                {
+                    selectedGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                    selectedGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.SetColor("_EmissionColor", Color.cyan * 0.4f);
+                }
+                if (loaderSc.isInColorMode)
+                {
+                    if(selectedGo.GetComponentInChildren<XRGrabInteractable>())
+                    {
+                        selectedGo.GetComponentInChildren<XRGrabInteractable>().enabled = false;
+                    }
+
+                    if (selectedGo.GetComponentInChildren<Renderer>())
+                    {
+                        if (selectedGo.GetComponentInChildren<Changes>())
+                        {
+                            selectedGo.GetComponentInChildren<Changes>().ChangeColor();
+                        }
+                    }
+                        
+                }
+                if (notesManager.gOname)
+                    notesManager.gOname.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.gameObject.name;
+                notesManager.gOpos.GetComponentInChildren<TMP_Text>().text = selectedGo.transform.position.ToString();
             }
-         
+            if (selectedGo!=null&&selectedGo.GetComponentInChildren<XRGrabInteractable>())
+            {
+                selectedGo.GetComponentInChildren<XRGrabInteractable>().enabled = true;
+            }
         }
         
-       
+
+
     }
     
     public void OnLayerListDis()
     {
+        changeText.text = "Model List";
         for (var i = savedContent.transform.childCount - 1; i >= 0; i--)
         {
-            Destroy(savedContent.transform.GetChild(i).gameObject);
+            if (savedContent.transform.GetChild(i).gameObject.GetComponent<Image>().color != Color.green)
+                Destroy(savedContent.transform.GetChild(i).gameObject);
         }
     }
 
     public void OnLayerEn()
     {
+        changeText.text = "Open Model";
         GetLayerListByName();
     }
 
@@ -192,15 +186,21 @@ public class Build : MonoBehaviour
         {
             if (layer.model.Contains("objectType"))
             {
-                Debug.Log("Layersmodel: "+layer.model);
                 var nN = Instantiate(listItem, savedContent.transform);
-                nN.transform.SetSiblingIndex(0);
+                nN.transform.SetSiblingIndex(openModelCount);
                 nN.transform.GetComponentInChildren<TMP_Text>().text = layer.layername + " " + layer.start;
                 nN.gameObject.name = layer.model;
                 nN.gameObject.AddComponent<LoadLayer>().data = layer.model;
                 nN.gameObject.GetComponent<LoadLayer>().data2 = layer.layername;
                 nN.gameObject.GetComponent<LoadLayer>().btn = nN;
                 nN.onClick.AddListener(() => nN.gameObject.GetComponent<LoadLayer>().Loading());
+                for(int i = 0; i<openModelCount; i++)
+                {
+                    if(savedContent.transform.GetChild(i).gameObject.GetComponentInChildren<TMP_Text>().text== nN.transform.GetComponentInChildren<TMP_Text>().text)
+                    {
+                        nN.transform.GetComponentInChildren<Image>().color = Color.gray;
+                    }
+                }
             }
         }
     }
@@ -208,28 +208,41 @@ public class Build : MonoBehaviour
 
     public void LoadingLayer(string layerName, string layerModel, Button button)
     {
-            Debug.Log("LayerName: "+layerName+" Model: "+layerModel+" Button: "+button.name);
-        if (button.transform.GetComponent<Image>().color==Color.white)
+        if (button.transform.GetComponent<Image>().color == Color.white || button.transform.GetComponent<Image>().color == loadedButton)
         {
-        button.transform.GetComponent<Image>().color = Color.green;
+            button.transform.GetComponent<Image>().color = Color.green;
             if (DoesTagExist(layerName))
             {
-                loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
+                var parentObject = loaderSc.LayerJsonToLayerBegin(layerName, layerModel);
+                openModelCount++;
+                button.GetComponent<LoadLayer>().loadedParent = parentObject;
+                //button.onClick.AddListener(() => { UnloadLayer(loadedObjects); });
             }
         }
-        else
+        else if(button.transform.GetComponent<Image>().color == Color.green)
         {
-            button.transform.GetComponent<Image>().color = Color.white;
-            if (DoesTagExist(layerName))
+            button.transform.GetComponent<Image>().color = loadedButton;
+            openModelCount--;
+            Debug.Log("UnLoading was called");
+            if (button.GetComponent<LoadLayer>().loadedParent)
             {
-                GameObject[] blocks = GameObject.FindGameObjectsWithTag(layerName);
-                foreach (var block in blocks)
+                foreach (var child in button.GetComponent<LoadLayer>().loadedParent.transform.GetComponentsInChildren<Transform>())
                 {
-                    Destroy(block.gameObject);
+                    Destroy(child.gameObject);
                 }
+                Destroy(button.GetComponent<LoadLayer>().loadedParent);
             }
         }
     }
+
+    /*public void UnloadLayer(List<GameObject> objects)
+    {
+        openModelCount--;
+        foreach (var obj in objects)
+        {
+            Destroy(obj.gameObject);
+        }
+    }*/
 
     public void Clear()
     {
@@ -276,6 +289,9 @@ public class Build : MonoBehaviour
             {
                 Debug.Log("Cube position: " + intHit.point.ToString());
                var cube= Instantiate(buildingBlock, intHit.point, Quaternion.identity,loaderSc.userParentObject.transform);
+                cube.AddComponent<Changes>();
+                cube.GetComponentInChildren<Changes>().gotColor = buildingBlock.GetComponentInChildren<MeshRenderer>().sharedMaterial.color;
+                cube.GetComponentInChildren<Changes>().StartChanges();
                 cube.tag="Cube";
             }
         }

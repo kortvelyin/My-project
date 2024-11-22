@@ -12,6 +12,7 @@ public class LoadLayer : MonoBehaviour
     public string data;
     public string data2;
     public Button btn;
+    public GameObject loadedParent;
 
     public void Loading()
     {

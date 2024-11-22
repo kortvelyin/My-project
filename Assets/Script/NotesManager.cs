@@ -53,6 +53,8 @@ public class NotesManager : MonoBehaviour
     ContactService contactService;
     Build buildSc;
 
+    public GameObject hotelParent; 
+
 
     // Start is called before the first frame update
     void Start()
@@ -62,53 +64,52 @@ public class NotesManager : MonoBehaviour
         authSc = GameObject.Find("AuthManager").GetComponent<authManager>();
         contactService = GameObject.Find("AuthManager").GetComponent<ContactService>();
         buildSc = GameObject.Find("Building").GetComponent<Build>();
-        // OnGetNotesByProject();
+
+        hotelParent = GameObject.Find("dorottyahotel");
+
+
         gOuser = Instantiate(savedNotePrefab, oneContext.transform);
         gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.userData.name;
         gOname = Instantiate(savedNotePrefab, oneContext.transform);
         gOpos = Instantiate(savedNotePrefab, oneContext.transform);
-
+        Debug.Log("vector0: " + Vector3.zero.ToString());
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-
+    
      
     public void ToConsole(List<Notes> notes) //list out notes
     {
-        
-        foreach(var note in notes)
+        GameObject[] noteLayer = GameObject.FindGameObjectsWithTag("Note");
+        foreach (var noteItem in noteLayer)
+        {
+            Destroy(noteItem.gameObject);
+        }
+        foreach (var note in notes)
         {
             Debug.Log("note: " + note.ToString());
 
-            GameObject[] noteLayer = GameObject.FindGameObjectsWithTag("Note");
-            foreach(var noteItem in noteLayer)
-            {
-                Destroy(noteItem.gameObject);
-            }
+            
             var nN = Instantiate(savedNotePrefab, savedContext.transform);
             nN.transform.SetSiblingIndex(0);
             
             nN.transform.GetComponentInChildren<TMP_Text>().text = authSc.GetUserNameByID(Int32.Parse(note.user_id)) + " " + note.title;
             nN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
-            
+
             //The pop ups of the notes as a layer throughout the bulding
-            
-            
-            if (note.position!=null && (note.position).Contains("Item"))
+
+            var trans = JsonHelper.FromJson<string>(note.position);
+            if (trans[0]!=""|| trans[1] != "")
             {
-                var lN = Instantiate(layerNote);//make the pop ups of notes
-                var trans = JsonHelper.FromJson<string>(note.position);
+                Debug.Log("pos: " + JsonConvert.DeserializeObject<Vector3>(trans[0]).ToString() + " rot: " + trans[1]);
+                var lN = Instantiate(layerNote,hotelParent.transform);//make the pop ups of notes
+               // var trans = JsonHelper.FromJson<string>(note.position);
                 lN.tag = "Note";
                 lN.transform.GetChild(0).transform.Find("NoteTitle").GetComponent<TMP_Text>().text = note.title;
                 lN.transform.GetChild(0).transform.Find("Creator").GetComponent<TMP_Text>().text = "Creator: " + authSc.GetUserNameByID(Int32.Parse(note.user_id));
                 lN.onClick.AddListener(() => ShowNote(JsonUtility.ToJson(note)));
-                lN.transform.position= JsonConvert.DeserializeObject<Vector3>(trans[0]);
-                lN.transform.rotation = JsonConvert.DeserializeObject<Quaternion>(trans[1]);
+                lN.transform.localPosition= JsonConvert.DeserializeObject<Vector3>(trans[0]);
+                lN.transform.localRotation = JsonConvert.DeserializeObject<Quaternion>(trans[1]);
+               
             }
             
         }
@@ -127,23 +128,27 @@ public class NotesManager : MonoBehaviour
   
     public void AddNoteToDB()
     {    
-        var goN = Instantiate(layerNote);
+        var goN = Instantiate(layerNote,hotelParent.transform);
         Transform transform= gameObject.transform;
+        string[] trans = new String[2];
         if (buildSc.selectedGo != null)
         {
-            Vector3 vec3 = new Vector3(transform.position.x + (transform.position.x - buildSc.selectedGo.transform.position.x) / 2, transform.position.y, transform.position.z);
-            goN.transform.position = vec3;
+            //Vector3 vec3 = new Vector3((Camera.main.transform.position.x + buildSc.selectedGo.transform.position.x) / 2, transform.position.y, transform.position.z);
+
+            
+            goN.transform.position = Vector3.MoveTowards(buildSc.selectedGo.transform.position, Camera.main.transform.position, 1);
+            goN.AddComponent<PopUpNoteRotation>();
+            trans[1] = JsonUtility.ToJson(goN.transform.localRotation);
+            trans[0] = JsonUtility.ToJson(goN.transform.localPosition);
         }
         else
-            goN.transform.position = transform.position;
+        {
+            trans[0] = "";
+            trans[1] = "";
+        }
 
 
         
-        goN.transform.rotation.SetLookRotation(Camera.main.transform.position);
-        
-        string[] trans=new String[2];
-        trans[0] = JsonUtility.ToJson(goN.transform.position);
-        trans[1]= JsonUtility.ToJson(goN.transform.rotation);
         var jtrans = JsonHelper.ToJson(trans);
         Notes note = new()
         {
@@ -151,38 +156,30 @@ public class NotesManager : MonoBehaviour
             title = titleNote.text,//+" Projectname" + System.DateTime.Now.ToString(),
             text = textNote.text,
             gobject = gOname.GetComponentInChildren<TMP_Text>().text,
-            
             project_id = "30",
-        position = jtrans//jsoned transform
+            position = jtrans//jsoned transform
         };
-        
-         var jnote = JsonUtility.ToJson(note);
-        goN.onClick.AddListener(() => ShowNote(jnote));
-        goN.tag = "Note";
-        goN.transform.GetChild(0).transform.Find("NoteTitle").GetComponent<TMP_Text>().text = note.title;
-        goN.transform.GetChild(0).transform.Find("Creator").GetComponent<TMP_Text>().text = "Creator: "+ authSc.GetUserNameByID(Int32.Parse(note.user_id));
-        Debug.Log("goname jnote: " + jnote);
+
+        titleNote.text = "";
+        textNote.text = "";
+        gOuser.GetComponentInChildren<TMP_Text>().text = authSc.userData.name;
+        gOname.GetComponentInChildren<TMP_Text>().text = "Select Object";
+
+        gOname.GetComponentInChildren<TMP_Text>().text = "Select Object";
+        var jnote = JsonUtility.ToJson(note);
+
+        if (buildSc.selectedGo != null)
+        { 
+            goN.onClick.AddListener(() => ShowNote(jnote));
+            goN.tag = "Note";
+            goN.transform.GetChild(0).transform.Find("NoteTitle").GetComponent<TMP_Text>().text = note.title;
+            goN.transform.GetChild(0).transform.Find("Creator").GetComponent<TMP_Text>().text = "Creator: "+ authSc.GetUserNameByID(Int32.Parse(note.user_id));
+        }
+            
         StartCoroutine(contactService.PostData_Coroutine(jnote, "http://"+authSc.ipAddress+":3000/notes"));
-        // int pk= contactService.AddNote(note);
-
-        //Debug.Log("Primary Key: "+pk);
+      
     }
 
-     public void ShowNoteItem(string jnote)
-    {
-        Notes note = JsonConvert.DeserializeObject<Notes>(jnote);
-        Transform noteTrans= JsonConvert.DeserializeObject<Transform>(note.position);
-
-        //jnnote to note
-        //note to shownote
-    }
-
-    public Notes JnoteToNote(string jnote)
-    {
-        Notes note= JsonConvert.DeserializeObject<Notes>(jnote);
-
-        return note;
-    }
 
 
 
@@ -221,11 +218,6 @@ public class NotesManager : MonoBehaviour
     }
   
 
-    public void OnGetNotesByProject()
-    {
-        //var notes = contactService.GetNotesFromProject("none");
-        //ToConsole(notes);
-    }
 
     public void ChangeTab(TMP_Text text)
     {
@@ -234,25 +226,23 @@ public class NotesManager : MonoBehaviour
             savedNotes.SetActive(false);
            
             newNote.SetActive(true);
-           
-            //gOname = Instantiate(savedNotePrefab, oneContext.transform);
             gOuser.transform.GetComponentInChildren<TMP_Text>().text = authSc.userData.name;
             gOname.transform.GetComponentInChildren<TMP_Text>().text = "Select Object";
             gOpos.transform.GetComponentInChildren<TMP_Text>().text = "Select Object";
             textNote.text = "";
             titleNote.text = "";
-            //text.text = "List";
             for (var i = savedContext.transform.childCount - 1; i >= 0; i--)
             {
                 UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
             }
-           
+            text.text = "Notes";
+
         }
         else
         { newNote.SetActive(false);
         savedNotes.SetActive(true);
             OnGetNoteListbyProjectID("30");
-            
+            text.text = "Note";
         }
     }
 
@@ -284,7 +274,6 @@ public class NotesManager : MonoBehaviour
         {
             UnityEngine.Object.Destroy(savedContext.transform.GetChild(i).gameObject);
         }
-        Debug.Log("Note: "+jnote);
         var oldNote = JsonConvert.DeserializeObject<NotesInRoot>(jnote);
         titleNote.text=oldNote.title;
         textNote.text = oldNote.text;
