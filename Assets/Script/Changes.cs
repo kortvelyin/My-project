@@ -9,6 +9,8 @@ using UnityEngine;
 /// </summary>
 public class Changes : MonoBehaviour
 {
+
+    public Material tempMaterial;
     //Original data
     //[HideInInspector]
     public Color ogColor;
@@ -22,8 +24,8 @@ public class Changes : MonoBehaviour
     // Start is called before the first frame update
     public void StartChanges()
     {
-        //Debug.Log("Changes script started");
-        ogMaterial = gameObject.GetComponentInChildren<Renderer>().material;
+        ogMaterial = gameObject.GetComponentInChildren<Renderer>().sharedMaterial;
+      
         ogColor = ogMaterial.color;
         gameObject.GetComponentInChildren<Renderer>().material.color = gotColor;
         ogTransform = gameObject.transform;

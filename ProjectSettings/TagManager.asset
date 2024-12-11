@@ -8,6 +8,8 @@ TagManager:
   - Note
   - showroom
   - Cube
+  - Lamp
+  - AssetBundle
   layers:
   - Default
   - TransparentFX

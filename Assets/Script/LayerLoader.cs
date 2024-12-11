@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Unity.VisualScripting;
 using UnityEngine.XR.Interaction.Toolkit;
+using System.Linq;
 
 /// <summary>
 /// Main functions to the Build.cs
@@ -39,12 +40,15 @@ public class LayerLoader : MonoBehaviour
 
 
     public List<GameObject> prefabs;
+    List<GameObject> loadedObjects = new List<GameObject>();
     public GameObject userParentObject;
     ContactService contactService;
     authManager authMSc;
+    DwnAssetBundle assetB;
     Build buildSc;
     public bool isInColorMode;
     public TMP_Text layerTitleText;
+
 
 
     private void Start()
@@ -55,6 +59,7 @@ public class LayerLoader : MonoBehaviour
         userParentObject.name = "userID";
         contactService = GameObject.Find("AuthManager").GetComponent<ContactService>();
         authMSc = GameObject.Find("AuthManager").GetComponent<authManager>();
+        assetB= GameObject.Find("AuthManager").GetComponent<DwnAssetBundle>();
     }
 
 
@@ -62,7 +67,7 @@ public class LayerLoader : MonoBehaviour
     public GameObject LayerJsonToLayerBegin(string layerName, string layer)
     {
         var parentObject = new GameObject(layerName);
-        List<GameObject> loadedObjects = new List<GameObject>();
+        
         parentObject.transform.parent = userParentObject.transform;
         if (layer.Contains("layeritem"))
         {
@@ -71,16 +76,16 @@ public class LayerLoader : MonoBehaviour
             
             LayerInfoToLayer(layer, parentObject, layerName);
         }
+        else if (layer.Contains("htt"))
+        {
+            StartCoroutine(GetAssetBundle(layer, parentObject, layerName));
+        }
         else if(layer.Contains("Item"))//with jsonHelper
         {
             Debug.Log("it is indeed full of items: "+ layer);
             
             if(layer.Contains("objectType"))
                 loadedObjects = LayerInfoToLayer(layer, parentObject, layerName);
-        }
-        else if (layer.Contains("htt"))
-        {
-            StartCoroutine(GetAssetBundle(parentObject,layer));
         }
         else
         {
@@ -99,34 +104,38 @@ public class LayerLoader : MonoBehaviour
         foreach (var layerItem in layerItemList)
         {
             LayerItem lItem = JsonUtility.FromJson<LayerItem>(layerItem);
+
+           
             for (int i = 0; i < prefabs.Count; i++)
             {
                 if (lItem.objectType.Contains(prefabs[i].name))
                 {
                     item = Instantiate(prefabs[i]);
-                    loadedObjects.Add(item);
-                    item.tag = layerName;
-                    parentObject.tag = layerName; //so that this gets destroyed too
-                    item.name = lItem.objectType;
-                    item.transform.parent = parentObject.transform;
-                    var transfromArray= JsonHelper.FromJson<String>(lItem.transform);
-
-                    item.transform.position = JsonUtility.FromJson<Vector3>(transfromArray[0]);
-                    item.transform.rotation = JsonUtility.FromJson<Quaternion>(transfromArray[1]);
-                    item.transform.localScale = JsonUtility.FromJson<Vector3>(transfromArray[2]);
-                    if (item.GetComponentInChildren<MeshRenderer>())
-                    {
-                        if (item.GetComponentInChildren<MeshRenderer>())
-                            item.AddComponent<Changes>();//.ogMaterial = item.GetComponent<Renderer>().material;
-                        
-                        item.GetComponentInChildren<Changes>().gotColor = lItem.color;
-                        item.GetComponentInChildren<Changes>().StartChanges();
-
-                    }
-                    
-                   
                 }
             }
+            loadedObjects.Add(item);
+            item.tag = layerName;
+            parentObject.tag = layerName; //so that this gets destroyed too
+            item.name = lItem.objectType;
+            item.transform.parent = parentObject.transform;
+            var transfromArray= JsonHelper.FromJson<String>(lItem.transform);
+
+            item.transform.position = JsonUtility.FromJson<Vector3>(transfromArray[0]);
+            item.transform.rotation = JsonUtility.FromJson<Quaternion>(transfromArray[1]);
+            item.transform.localScale = JsonUtility.FromJson<Vector3>(transfromArray[2]);
+            if (item.GetComponentInChildren<MeshRenderer>())
+            {
+                if (item.GetComponentInChildren<MeshRenderer>())
+                    item.AddComponent<Changes>();//.ogMaterial = item.GetComponent<Renderer>().material;
+                        
+                item.GetComponentInChildren<Changes>().gotColor = lItem.color;
+                item.GetComponentInChildren<Changes>().StartChanges();
+
+            }
+                    
+                   
+                
+            
             
         }
                 if(item == null) 
@@ -147,34 +156,81 @@ public class LayerLoader : MonoBehaviour
 
         return JsonHelper.ToJson(transformArray);
     }
-    IEnumerator GetAssetBundle(GameObject parent, string layer)
+    public IEnumerator GetAssetBundle(string model, GameObject parentObject, string layerName)
     {
+        loadedObjects = new List<GameObject>();
+        var layerItemList = JsonHelper.FromJson<string>(model);
+        GameObject item = null;
+        string driveurl = "https://drive.usercontent.google.com/u/0/uc?id=1IZxxjHIlJIcHO2p35wjQbT8iMRGPr9rP&export=download";
 
-        var layerData = JsonConvert.DeserializeObject<Project>(layer);
 
-        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(layerData.model);
-        yield return www.SendWebRequest();
 
-        if (www.result != UnityWebRequest.Result.Success)
+        foreach (var layerItem in layerItemList)
         {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
-            var loadAsset = bundle.LoadAllAssets();
-            yield return loadAsset;
-
-            foreach (var asset in loadAsset)
+            LayerItem lItem = JsonUtility.FromJson<LayerItem>(layerItem);
+            lItem.objectType=lItem.objectType.Replace("_", "/");
+            Debug.Log("URL: " + lItem.objectType);
+            using (UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(lItem.objectType, 0))
             {
-                var assetGo= Instantiate(asset, parent.transform);
-                assetGo.AddComponent<XRGrabInteractable>();
-            }
+                yield return www.SendWebRequest();
 
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.Log("assetbundle problem" + www.error);
+                }
+                else
+                {
+                    AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(www);
+
+                    
+                    GameObject go = bundle.LoadAsset(bundle.GetAllAssetNames()[0]) as GameObject;
+                    item = Instantiate(go);
+                    loadedObjects.Add(item);
+
+                    item.tag = layerName;
+                    parentObject.tag = layerName; //so that this gets destroyed too
+                    item.name = lItem.objectType;
+                    item.transform.parent = parentObject.transform;
+                    var transfromArray = JsonHelper.FromJson<String>(lItem.transform);
+                    item.transform.position = JsonUtility.FromJson<Vector3>(transfromArray[0]);
+                    item.transform.rotation = JsonUtility.FromJson<Quaternion>(transfromArray[1]);
+                    item.transform.localScale = JsonUtility.FromJson<Vector3>(transfromArray[2]);
+                    for (int i = 0; i<item.transform.childCount; i++)
+                    {
+                        if(item.transform.GetChild(i).GetComponent<Renderer>())
+                        {
+                            var materials = item.transform.GetChild(i).GetComponent<Renderer>().materials;
+                            foreach(var material in materials)
+                            {
+                                material.shader= Shader.Find("Universal Render Pipeline/Lit");
+                            }
+                            item.transform.GetChild(i).AddComponent<BoxCollider>().isTrigger = true;
+                            item.transform.GetChild(i).AddComponent<Changes>();//.ogMaterial = item.GetComponent<Renderer>().material;
+
+                            item.transform.GetChild(i).GetComponent<Changes>().gotColor = lItem.color;
+                            item.transform.GetChild(i).GetComponent<Changes>().StartChanges();
+                        }
+                    }
+                    
+
+
+                    //item.GetComponentInChildren<Renderer>().material.shader = Shader.Find("Universal Render Pipeline/Lit");
+                    //item.transform.GetChild(0).AddComponent<BoxCollider>().isTrigger = true;
+                    
+                    
+                    bundle.Unload(false);
+                    yield return new WaitForEndOfFrame();
+                }
+                www.Dispose();
+
+            }
         }
+
+        
+
     }
 
-   
+
 
 
 

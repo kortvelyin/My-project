@@ -95,22 +95,22 @@ public class Build : MonoBehaviour
         }
         if (interactor.TryGetCurrent3DRaycastHit(out intHit))
         {
-            Debug.Log("intHit taken");
+            //Debug.Log("intHit taken");
             if (!interactor.isSelectActive && selectedGo != intHit.transform.gameObject)
             {
                 // Debug.Log("raycast hit in hover I");
-                if (hoverGo != intHit.transform.gameObject && intHit.transform.gameObject.GetComponent<MeshRenderer>())
+                if (hoverGo != intHit.transform.gameObject && intHit.transform.gameObject.GetComponentInChildren<MeshRenderer>())
                 {
                     // Debug.Log("raycast hit in hover II");
-                    if (hoverGo!=null &&hoverGo.GetComponent<MeshRenderer>()!=null)
+                    if (hoverGo!=null &&hoverGo.GetComponentInChildren<MeshRenderer>()!=null)
                     {
-                        hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
-                        hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
+                        hoverGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                        hoverGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.0f);
                     }
 
                     hoverGo = intHit.transform.gameObject;
-                    hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
-                    hoverGo.transform.gameObject.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.3f);
+                    hoverGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.EnableKeyword("_EMISSION");
+                    hoverGo.transform.gameObject.GetComponentInChildren<MeshRenderer>().material.SetColor("_EmissionColor", Color.white * 0.3f);
                 }
             }
             if (interactor.isSelectActive)
